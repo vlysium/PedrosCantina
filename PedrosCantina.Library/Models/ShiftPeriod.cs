@@ -5,17 +5,17 @@ public class ShiftPeriod
 	/// <summary>
 	/// Gets or sets the unique identifier for the shift period.
 	/// </summary>
-	public string Period { get; set; }
+	public string Period { get; init; }
 
 	/// <summary>
 	/// Gets or sets the start time of the shift period.
 	/// </summary>
-	public TimeOnly StartTime { get; set; }
+	public TimeOnly StartTime { get; init; }
 
 	/// <summary>
 	/// Gets or sets the end time of the shift period.
 	/// </summary>
-	public TimeOnly EndTime { get; set; }
+	public TimeOnly EndTime { get; init; }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ShiftPeriod"/> class.
