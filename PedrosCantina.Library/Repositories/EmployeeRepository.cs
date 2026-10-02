@@ -24,17 +24,17 @@ public class EmployeeRepository : ICrudOperations<Employee>
 	{
 		const string query = """
 			SELECT employee_id, name, email, phone_number
-			FROM Employees
+			FROM employees
 			WHERE employee_id = @Id;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
-		SqlCommand command = new SqlCommand(query, connection);
+		using SqlCommand command = new SqlCommand(query, connection);
 		command.Parameters.AddWithValue("@Id", id);
 
-		SqlDataReader reader = command.ExecuteReader();
+		using SqlDataReader reader = command.ExecuteReader();
 
 		if (!reader.Read())
 		{
@@ -58,7 +58,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 	{
 		const string query = """
 			SELECT employee_id, name, email, phone_number
-			FROM Employees;
+			FROM employees;
 		""";
 
 		List<Employee> employees = new List<Employee>();
@@ -66,8 +66,8 @@ public class EmployeeRepository : ICrudOperations<Employee>
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
-		SqlCommand command = new SqlCommand(query, connection);
-		SqlDataReader reader = command.ExecuteReader();
+		using SqlCommand command = new SqlCommand(query, connection);
+		using SqlDataReader reader = command.ExecuteReader();
 
 		while (reader.Read())
 		{
@@ -92,7 +92,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 	public Employee Create(Employee employee)
 	{
 		const string query = """
-			INSERT INTO Employees (name, email, phone_number)
+			INSERT INTO employees (name, email, phone_number)
 			OUTPUT INSERTED.employee_id
 			VALUES (@Name, @Email, @PhoneNumber);
 		""";
@@ -100,21 +100,21 @@ public class EmployeeRepository : ICrudOperations<Employee>
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
-		SqlCommand command = new SqlCommand(query, connection);
+		using SqlCommand command = new SqlCommand(query, connection);
 		command.Parameters.AddWithValue("@Name", employee.Name);
 		command.Parameters.AddWithValue("@Email", employee.Email);
 		command.Parameters.AddWithValue("@PhoneNumber", employee.PhoneNumber);
 
-		object result = command.ExecuteScalar();
+		object newEmployeeId = command.ExecuteScalar();
 
-		if (result == null || result == DBNull.Value)
+		if (newEmployeeId == null || newEmployeeId == DBNull.Value)
 		{
 			throw new InvalidOperationException("Failed to create employee.");
 		}
 
 		return new Employee
 		{
-			EmployeeId = Convert.ToInt32(result),
+			EmployeeId = Convert.ToInt32(newEmployeeId),
 			Name = employee.Name,
 			Email = employee.Email,
 			PhoneNumber = employee.PhoneNumber
@@ -130,7 +130,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 	public Employee Update(Employee employee)
 	{
 		const string query = """
-			UPDATE Employees
+			UPDATE employees
 			SET name = @Name, email = @Email, phone_number = @PhoneNumber
 			WHERE employee_id = @Id;
 		""";
@@ -138,7 +138,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
-		SqlCommand command = new SqlCommand(query, connection);
+		using SqlCommand command = new SqlCommand(query, connection);
 		command.Parameters.AddWithValue("@Id", employee.EmployeeId);
 		command.Parameters.AddWithValue("@Name", employee.Name);
 		command.Parameters.AddWithValue("@Email", employee.Email);
@@ -146,7 +146,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 
 		int rowsAffected = command.ExecuteNonQuery();
 
-		if (rowsAffected == 0)
+		if (rowsAffected != 1)
 		{
 			throw new KeyNotFoundException($"Employee with ID {employee.EmployeeId} not found.");
 		}
@@ -163,7 +163,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 	public Employee Delete(int id)
 	{
 		const string query = """
-			DELETE FROM Employees
+			DELETE FROM employees
 			OUTPUT DELETED.employee_id, DELETED.name, DELETED.email, DELETED.phone_number
 			WHERE employee_id = @Id;
 		""";
@@ -171,10 +171,10 @@ public class EmployeeRepository : ICrudOperations<Employee>
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
-		SqlCommand command = new SqlCommand(query, connection);
+		using SqlCommand command = new SqlCommand(query, connection);
 		command.Parameters.AddWithValue("@Id", id);
 
-		SqlDataReader reader = command.ExecuteReader();
+		using SqlDataReader reader = command.ExecuteReader();
 
 		if (!reader.Read())
 		{
