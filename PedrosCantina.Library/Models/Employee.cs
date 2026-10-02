@@ -30,16 +30,26 @@ public class Employee
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Employee"/> class with the specified properties.
 	/// </summary>
+	/// <param name="name">The name of the employee.</param>
+	/// <param name="email">The email address of the employee.</param>
+	/// <param name="phoneNumber">The phone number of the employee.</param>
+	public Employee(string name, string email, string phoneNumber): this()
+	{
+		Name = name;
+		Email = email;
+		PhoneNumber = phoneNumber;
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="Employee"/> class with the specified properties, including the employee ID.
+	/// </summary>
 	/// <param name="employeeId">The unique identifier for the employee.</param>
 	/// <param name="name">The name of the employee.</param>
 	/// <param name="email">The email address of the employee.</param>
 	/// <param name="phoneNumber">The phone number of the employee.</param>
-	public Employee(int employeeId, string name, string email, string phoneNumber): this()
+	public Employee(int employeeId, string name, string email, string phoneNumber): this(name, email, phoneNumber)
 	{
 		EmployeeId = employeeId;
-		Name = name;
-		Email = email;
-		PhoneNumber = phoneNumber;
 	}
 
 	public override string ToString()
