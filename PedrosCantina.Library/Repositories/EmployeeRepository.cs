@@ -1,7 +1,7 @@
 using Microsoft.Data.SqlClient;
-using PedrosCantina.Library.Repositories;
+using PedrosCantina.Library.Models;
 
-namespace PedrosCantina.Library.Data;
+namespace PedrosCantina.Library.Repositories;
 
 public class EmployeeRepository : ICrudOperations<Employee>
 {

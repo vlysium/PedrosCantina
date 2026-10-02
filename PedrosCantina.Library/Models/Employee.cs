@@ -1,4 +1,4 @@
-namespace PedrosCantina.Library;
+namespace PedrosCantina.Library.Models;
 
 public class Employee
 {
