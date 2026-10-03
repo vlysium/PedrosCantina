@@ -20,10 +20,15 @@ public class ShiftPeriod
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ShiftPeriod"/> class.
 	/// </summary>
+	public ShiftPeriod() {}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="ShiftPeriod"/> class with the specified period, start time, and end time.
+	/// </summary>
 	/// <param name="period">The period of the shift.</param>
 	/// <param name="startTime">The start time of the shift.</param>
 	/// <param name="endTime">The end time of the shift.</param>
-	public ShiftPeriod(string period, TimeOnly startTime, TimeOnly endTime)
+	public ShiftPeriod(string period, TimeOnly startTime, TimeOnly endTime): this()
 	{
 		Period = period;
 		StartTime = startTime;

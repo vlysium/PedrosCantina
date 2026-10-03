@@ -39,6 +39,7 @@ public class Shift
 	public Shift(Manager manager)
 	{
 		Manager = manager;
+		AddEmployee(manager); // Automatically add the manager to the shift's employee list to ensure they are part of the shift.
 	}
 
 	/// <summary>
