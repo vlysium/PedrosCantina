@@ -61,33 +61,16 @@ public class ShiftRepository : ICrudOperations<Shift>
 				DateOnly date = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("shift_date")));
 
 				// Populate the ShiftPeriod instance
-				ShiftPeriod period = new ShiftPeriod
-				{
-					Period = reader.GetString(reader.GetOrdinal("period")),
-					StartTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("start_time"))),
-					EndTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("end_time")))
-				};
+				ShiftPeriod period = PopulateShiftPeriod(reader);
 
 				// Populate the Manager instance
-				Manager manager = new Manager
-				{
-					EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
-					Name = reader.GetString(reader.GetOrdinal("manager_name")),
-					Email = reader.GetString(reader.GetOrdinal("manager_email")),
-					PhoneNumber = reader.GetString(reader.GetOrdinal("manager_phone_number"))
-				};
+				Manager manager = PopulateManager(reader);
 
-				shift = new Shift(date, period, manager) { ShiftId = shiftId };
+				shift = new Shift(shiftId, date, period, manager);
 			}
 
 			// Populate the Employee instance and add it to the shift's employee list
-			Employee employee = new Employee
-			{
-				EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-				Name = reader.GetString(reader.GetOrdinal("employee_name")),
-				Email = reader.GetString(reader.GetOrdinal("employee_email")),
-				PhoneNumber = reader.GetString(reader.GetOrdinal("employee_phone_number"))
-			};
+			Employee employee = PopulateEmployee(reader);
 
 			shift.AddEmployee(employee);
 		}
@@ -131,45 +114,28 @@ public class ShiftRepository : ICrudOperations<Shift>
 			DateOnly date = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("shift_date")));
 
 			// Populate the ShiftPeriod instance
-			ShiftPeriod period = new ShiftPeriod
-			{
-				Period = reader.GetString(reader.GetOrdinal("period")),
-				StartTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("start_time"))),
-				EndTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("end_time")))
-			};
+			ShiftPeriod period = PopulateShiftPeriod(reader);
 
 			// Populate the Manager instance
-			Manager manager = new Manager
-			{
-				EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
-				Name = reader.GetString(reader.GetOrdinal("manager_name")),
-				Email = reader.GetString(reader.GetOrdinal("manager_email")),
-				PhoneNumber = reader.GetString(reader.GetOrdinal("manager_phone_number"))
-			};
+			Manager manager = PopulateManager(reader);
 
 			// Check if the shift already exists in the dictionary; if not, create a new Shift instance
 			if (!shifts.TryGetValue(shiftId, out Shift? existingShift))
 			{
-				existingShift = new Shift(date, period, manager) { ShiftId = shiftId };
+				existingShift = new Shift(shiftId, date, period, manager);
 				shifts.Add(shiftId, existingShift);
 			}
 
 			// Populate the Employee instance and add it to the existing shift's employee list
-			Employee employee = new Employee
-			{
-				EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-				Name = reader.GetString(reader.GetOrdinal("employee_name")),
-				Email = reader.GetString(reader.GetOrdinal("employee_email")),
-				PhoneNumber = reader.GetString(reader.GetOrdinal("employee_phone_number"))
-			};
+			Employee employee = PopulateEmployee(reader);
 
 			existingShift.AddEmployee(employee);
 		}
 
 		return shifts.Values.ToList();
 	}
-
-	public Shift Create(Shift entity)
+	
+	public Shift Create(Shift shift)
 	{
 		throw new NotImplementedException();
 	}
@@ -182,5 +148,52 @@ public class ShiftRepository : ICrudOperations<Shift>
 	public Shift Delete(int id)
 	{
 		throw new NotImplementedException();
+	}
+
+	/// <summary>
+	/// Helper method to populate a ShiftPeriod instance from a SqlDataReader.
+	/// </summary>
+	/// <param name="reader">The SqlDataReader containing the data.</param>
+	/// <returns>The populated ShiftPeriod instance.</returns>
+	private ShiftPeriod PopulateShiftPeriod(SqlDataReader reader)
+	{
+		return new ShiftPeriod
+		{
+			Code = reader.GetString(reader.GetOrdinal("period")),
+			StartTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("start_time"))),
+			EndTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("end_time")))
+		};
+	}
+
+	/// <summary>
+	/// Helper method to populate a Manager instance from a SqlDataReader.
+	/// </summary>
+	/// <param name="reader">The SqlDataReader containing the data.</param>
+	/// <returns>The populated Manager instance.</returns>
+	private Manager PopulateManager(SqlDataReader reader)
+	{
+		return new Manager
+		{
+			EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
+			Name = reader.GetString(reader.GetOrdinal("manager_name")),
+			Email = reader.GetString(reader.GetOrdinal("manager_email")),
+			PhoneNumber = reader.GetString(reader.GetOrdinal("manager_phone_number"))
+		};
+	}
+
+	/// <summary>
+	/// Helper method to populate an Employee instance from a SqlDataReader.
+	/// </summary>
+	/// <param name="reader">The SqlDataReader containing the data.</param>
+	/// <returns>The populated Employee instance.</returns>
+	private Employee PopulateEmployee(SqlDataReader reader)
+	{
+		return new Employee
+		{
+			EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
+			Name = reader.GetString(reader.GetOrdinal("employee_name")),
+			Email = reader.GetString(reader.GetOrdinal("employee_email")),
+			PhoneNumber = reader.GetString(reader.GetOrdinal("employee_phone_number"))
+		};
 	}
 }

@@ -5,7 +5,7 @@ public class ShiftPeriod
 	/// <summary>
 	/// Gets or sets the unique identifier for the shift period.
 	/// </summary>
-	public string Period { get; init; }
+	public string Code { get; init; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the start time of the shift period.
@@ -25,18 +25,18 @@ public class ShiftPeriod
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ShiftPeriod"/> class with the specified period, start time, and end time.
 	/// </summary>
-	/// <param name="period">The period of the shift.</param>
+	/// <param name="code">The period code of the shift.</param>
 	/// <param name="startTime">The start time of the shift.</param>
 	/// <param name="endTime">The end time of the shift.</param>
-	public ShiftPeriod(string period, TimeOnly startTime, TimeOnly endTime): this()
+	public ShiftPeriod(string code, TimeOnly startTime, TimeOnly endTime): this()
 	{
-		Period = period;
+		Code = code;
 		StartTime = startTime;
 		EndTime = endTime;
 	}
 
 	public override string ToString()
 	{
-		return $"{Period}: {StartTime} - {EndTime}";
+		return $"{Code}: {StartTime} - {EndTime}";
 	}
 }

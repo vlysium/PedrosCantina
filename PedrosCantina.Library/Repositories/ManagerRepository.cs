@@ -42,13 +42,7 @@ public class ManagerRepository : ICrudOperations<Manager>
 			return null;
 		}
 
-		return new Manager
-		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
-			Name = reader.GetString(reader.GetOrdinal("name")),
-			Email = reader.GetString(reader.GetOrdinal("email")),
-			PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-		};
+		return PopulateManager(reader);
 	}
 	
 	/// <summary>
@@ -73,13 +67,7 @@ public class ManagerRepository : ICrudOperations<Manager>
 
 		while (reader.Read())
 		{
-			managers.Add(new Manager
-			{
-				EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
-				Name = reader.GetString(reader.GetOrdinal("name")),
-				Email = reader.GetString(reader.GetOrdinal("email")),
-				PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-			});
+			managers.Add(PopulateManager(reader));
 		}
 
 		return managers;
@@ -205,9 +193,19 @@ public class ManagerRepository : ICrudOperations<Manager>
 			throw new KeyNotFoundException($"Employee with ID {id} not found.");
 		}
 
+		return PopulateManager(reader);
+	}
+
+	/// <summary>
+	/// Helper method to populate a Manager instance from a SqlDataReader.
+	/// </summary>
+	/// <param name="reader">The SqlDataReader containing the data to populate the Manager instance.</param>
+	/// <returns>A new Manager instance populated with the data from the reader.</returns>
+	private Manager PopulateManager(SqlDataReader reader)
+	{
 		return new Manager
 		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
+			EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
 			Name = reader.GetString(reader.GetOrdinal("name")),
 			Email = reader.GetString(reader.GetOrdinal("email")),
 			PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
