@@ -35,7 +35,7 @@ public class ManagerRepository : ICrudOperations<Manager>
 		using SqlCommand command = new SqlCommand(query, connection);
 		command.Parameters.AddWithValue("@Id", id);
 
-		SqlDataReader reader = command.ExecuteReader();
+		using SqlDataReader reader = command.ExecuteReader();
 
 		if (!reader.Read())
 		{
@@ -69,7 +69,7 @@ public class ManagerRepository : ICrudOperations<Manager>
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		SqlDataReader reader = command.ExecuteReader();
+		using SqlDataReader reader = command.ExecuteReader();
 
 		while (reader.Read())
 		{
