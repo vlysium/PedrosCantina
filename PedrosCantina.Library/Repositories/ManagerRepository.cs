@@ -168,55 +168,49 @@ public class ManagerRepository : ICrudOperations<Manager>
 	/// <param name="id">The unique identifier of the manager to delete.</param>
 	/// <returns>The manager affected by the deletion.</returns>
 	/// <exception cref="KeyNotFoundException">Thrown when the manager with the specified ID is not found.</exception>
-	/// <exception cref="InvalidOperationException">Thrown when the deletion fails.</exception>
 	public Manager Delete(int id)
 	{
 		const string query1 = """
+			DELETE FROM managers
+			WHERE manager_id = @Id;
+		""";
+
+		const string query2 = """
 			SELECT employee_id, name, email, phone_number
 			FROM employees
 			WHERE employee_id = @Id;
 		""";
 
-		const string query2 = """
-			DELETE FROM managers
-			OUTPUT DELETED.manager_id
-			WHERE manager_id = @Id;
-		""";
-
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
-		Manager manager;
-		using (SqlCommand command1 = new SqlCommand(query1, connection))
-		{
-			command1.Parameters.AddWithValue("@Id", id);
+		using SqlCommand command1 = new SqlCommand(query1, connection);
+		command1.Parameters.AddWithValue("@Id", id);
 
-			using SqlDataReader reader = command1.ExecuteReader();
-
-			if (!reader.Read())
-			{
-				throw new KeyNotFoundException($"Employee with ID {id} not found.");
-			}
-
-			manager = new Manager
-			{
-				EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-				Name = reader.GetString(reader.GetOrdinal("name")),
-				Email = reader.GetString(reader.GetOrdinal("email")),
-				PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-			};
-		}
-
-		using SqlCommand command2 = new SqlCommand(query2, connection);
-		command2.Parameters.AddWithValue("@Id", id);
-
-		int rowsAffected = command2.ExecuteNonQuery();
+		int rowsAffected = command1.ExecuteNonQuery();
 
 		if (rowsAffected != 1)
 		{
-			throw new InvalidOperationException("Failed to delete manager.");
+			throw new KeyNotFoundException($"Manager with ID {id} not found.");
 		}
 
-		return manager;
+		using SqlCommand command2 = new SqlCommand(query2, connection);
+		
+		command2.Parameters.AddWithValue("@Id", id);
+
+		using SqlDataReader reader = command2.ExecuteReader();
+
+		if (!reader.Read())
+		{
+			throw new KeyNotFoundException($"Employee with ID {id} not found.");
+		}
+
+		return new Manager
+		{
+			EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
+			Name = reader.GetString(reader.GetOrdinal("name")),
+			Email = reader.GetString(reader.GetOrdinal("email")),
+			PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
+		};
 	}
 }
