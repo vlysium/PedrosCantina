@@ -134,10 +134,71 @@ public class ShiftRepository : ICrudOperations<Shift>
 
 		return shifts.Values.ToList();
 	}
-	
+
+	/// <summary>
+	/// Creates a new shift in the database, including its associated shift period, manager, and employees.
+	/// </summary>
+	/// <param name="shift">The shift to create.</param>
+	/// <returns>The created shift with a generated ID.</returns>
 	public Shift Create(Shift shift)
 	{
-		throw new NotImplementedException();
+		const string query1 = """
+			INSERT INTO shifts ([date], period, manager_id)
+			OUTPUT INSERTED.shift_id
+			VALUES (@Date, @Period, @ManagerId);
+		""";
+
+		const string query2 = """
+			INSERT INTO employee_shifts (employee_id, shift_id)
+			VALUES (@EmployeeId, @ShiftId);
+		""";
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+		using SqlTransaction transaction = connection.BeginTransaction();
+
+		try
+		{
+			using SqlCommand command = new SqlCommand(query1, connection, transaction);
+			command.Parameters.AddWithValue("@Date", shift.Date);
+			command.Parameters.AddWithValue("@Period", shift.Period.Code);
+			command.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
+
+			int shiftId = (int)command.ExecuteScalar()!;
+
+			foreach (Employee employee in shift.Employees)
+			{
+				// Don't insert into employee_shifts if the employee is the manager of the shift
+				if (employee.EmployeeId != shift.Manager.EmployeeId)
+				{
+					using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
+					command2.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
+					command2.Parameters.AddWithValue("@ShiftId", shiftId);
+
+					command2.ExecuteNonQuery();
+				}
+			}
+
+			transaction.Commit();
+			
+			// Create a new Shift instance to return, which includes the newly generated shift ID from the database
+			Shift createdShift = new Shift(shiftId, shift.Date, shift.Period, shift.Manager);
+			foreach (Employee employee in shift.Employees)
+			{
+				// Don't add the manager to the employee list again, as they are already part of the shift
+				if (employee.EmployeeId != shift.Manager.EmployeeId)
+				{
+					createdShift.AddEmployee(employee);
+				}
+			}
+
+			return createdShift;
+		}
+		catch (Exception)
+		{
+			transaction.Rollback();
+			throw;
+		}
 	}
 
 	public Shift Update(Shift entity)
