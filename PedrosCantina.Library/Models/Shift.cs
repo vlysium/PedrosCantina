@@ -8,9 +8,9 @@ public class Shift
 	private readonly Dictionary<int, Employee> _employees = new Dictionary<int, Employee>();
 
 	/// <summary>
-	/// Gets the unique identifier for the shift.
+	/// Gets the composite key for the shift for identifying it uniquely based on the date and period.
 	/// </summary>
-	public int ShiftId { get; private set; }
+	public ShiftKey Key => new ShiftKey(Date, Period);
 
 	/// <summary>
 	/// Gets or sets the date of the shift.
@@ -55,18 +55,6 @@ public class Shift
 	}
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Shift"/> class with the specified shift ID, date, period, and manager.
-	/// </summary>
-	/// <param name="shiftId">The unique identifier for the shift.</param>
-	/// <param name="date">The date of the shift.</param>
-	/// <param name="period">The period of the shift.</param>
-	/// <param name="manager">The manager responsible for the shift.</param>
-	public Shift(int shiftId, DateOnly date, ShiftPeriod period, Manager manager): this(date, period, manager)
-	{
-		ShiftId = shiftId;
-	}
-
-	/// <summary>
 	/// Adds an employee to the shift. Only up to 3 employees can be assigned to a shift.
 	/// </summary>
 	public void AddEmployee(Employee employee)
@@ -75,7 +63,7 @@ public class Shift
 
 		if (_employees.ContainsKey(employee.EmployeeId))
 		{
-			throw new ArgumentException("Employee is already assigned to this shift.", nameof(employee));
+			throw new ArgumentException($"Employee is already assigned to this shift.", nameof(employee));
 		}
 
 		if (_employees.Count >= 3)
@@ -108,6 +96,6 @@ public class Shift
 
 	public override string ToString()
 	{
-		return $"ShiftId: {ShiftId}, Date: {Date}, Period: {Period}, Manager: {Manager.Name}, Employees: [{string.Join(", ", _employees.Values.Select(e => e.Name))}]";
+		return $"Date: {Date}, Period: {Period}, Manager: {Manager.Name}, Employees: [{string.Join(", ", _employees.Values.Select(e => e.Name))}]";
 	}
 }

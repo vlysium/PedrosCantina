@@ -3,7 +3,7 @@ using PedrosCantina.Library.Models;
 
 namespace PedrosCantina.Library.Repositories;
 
-public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shift, int>
+public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperations<Shift, ShiftKey>
 {
 	/// <summary>
 	/// The database worker used to interact with the database.
@@ -22,13 +22,13 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 	/// <summary>
 	/// Reads a shift from the database by its ID, including its associated shift period, manager, and employees.
 	/// </summary>
-	/// <param name="id">The ID of the shift to read.</param>
-	/// <returns>The shift with the specified ID, or null if not found.</returns>
-	public Shift? ReadById(int id)
+	/// <param name="key">The key of the shift to read.</param>
+	/// <returns>The shift with the specified key, or null if not found.</returns>
+	public Shift? ReadById(ShiftKey key)
 	{
 		const string query = """
 			SELECT
-				s.shift_id, s.[date] AS shift_date,
+				s.[date] AS shift_date,
 				sp.period, sp.start_time, sp.end_time,
 				m.manager_id, manager.name AS manager_name, manager.email AS manager_email, manager.phone_number AS manager_phone_number,
 				e.employee_id, e.name AS employee_name, e.email AS employee_email, e.phone_number AS employee_phone_number
@@ -36,9 +36,9 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 			JOIN shift_periods AS sp ON s.period = sp.period
 			JOIN managers AS m ON s.manager_id = m.manager_id
 			JOIN employees AS manager ON m.manager_id = manager.employee_id
-			JOIN employee_shifts AS es ON s.shift_id = es.shift_id
+			JOIN employee_shifts AS es ON s.[date] = es.shift_date AND s.period = es.shift_period
 			JOIN employees AS e ON es.employee_id = e.employee_id
-			WHERE s.shift_id = @ShiftId
+			WHERE s.[date] = @Date AND s.period = @Period
 			ORDER BY shift_date, sp.start_time;
 		""";
 
@@ -48,7 +48,8 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@ShiftId", id);
+		command.Parameters.AddWithValue("@Date", key.Date);
+    	command.Parameters.AddWithValue("@Period", key.Period);
 
 		using SqlDataReader reader = command.ExecuteReader();
 
@@ -57,7 +58,6 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 		{
 			if (shift == null)
 			{
-				int shiftId = reader.GetInt32(reader.GetOrdinal("shift_id"));
 				DateOnly date = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("shift_date")));
 
 				// Populate the ShiftPeriod instance
@@ -66,7 +66,7 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 				// Populate the Manager instance
 				Manager manager = PopulateManager(reader);
 
-				shift = new Shift(shiftId, date, period, manager);
+				shift = new Shift(date, period, manager);
 			}
 
 			// Populate the Employee instance and add it to the shift's employee list
@@ -86,7 +86,7 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 	{
 		const string query = """
 			SELECT
-				s.shift_id, s.[date] AS shift_date,
+				s.[date] AS shift_date,
 				sp.period, sp.start_time, sp.end_time,
 				m.manager_id, manager.name AS manager_name, manager.email AS manager_email, manager.phone_number AS manager_phone_number,
 				e.employee_id, e.name AS employee_name, e.email AS employee_email, e.phone_number AS employee_phone_number
@@ -94,13 +94,13 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 			JOIN shift_periods AS sp ON s.period = sp.period
 			JOIN managers AS m ON s.manager_id = m.manager_id
 			JOIN employees AS manager ON m.manager_id = manager.employee_id
-			JOIN employee_shifts AS es ON s.shift_id = es.shift_id
+			JOIN employee_shifts AS es ON s.[date] = es.shift_date AND s.period = es.shift_period
 			JOIN employees AS e ON es.employee_id = e.employee_id
 			ORDER BY shift_date, sp.start_time;
 		""";
 
 		// Using a dictionary for faster lookups compared to a list
-		Dictionary<int, Shift> shifts = new Dictionary<int, Shift>();
+		Dictionary<ShiftKey, Shift> shifts = new Dictionary<ShiftKey, Shift>();
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
@@ -110,7 +110,6 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 
 		while (reader.Read())
 		{
-			int shiftId = reader.GetInt32(reader.GetOrdinal("shift_id"));
 			DateOnly date = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("shift_date")));
 
 			// Populate the ShiftPeriod instance
@@ -119,11 +118,14 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 			// Populate the Manager instance
 			Manager manager = PopulateManager(reader);
 
+			ShiftKey key = new ShiftKey(date, period);
+			
 			// Check if the shift already exists in the dictionary; if not, create a new Shift instance
-			if (!shifts.TryGetValue(shiftId, out Shift? existingShift))
+			if (!shifts.TryGetValue(key, out Shift? existingShift))
 			{
-				existingShift = new Shift(shiftId, date, period, manager);
-				shifts.Add(shiftId, existingShift);
+				existingShift = new Shift(date, period, manager);
+
+				shifts.Add(key, existingShift);
 			}
 
 			// Populate the Employee instance and add it to the existing shift's employee list
@@ -144,13 +146,12 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 	{
 		const string query1 = """
 			INSERT INTO shifts ([date], period, manager_id)
-			OUTPUT INSERTED.shift_id
 			VALUES (@Date, @Period, @ManagerId);
 		""";
 
 		const string query2 = """
-			INSERT INTO employee_shifts (employee_id, shift_id)
-			VALUES (@EmployeeId, @ShiftId);
+			INSERT INTO employee_shifts (employee_id, shift_date, shift_period)
+			VALUES (@EmployeeId, @Date, @Period);
 		""";
 
 		// Release the connection after use with `using`
@@ -164,9 +165,9 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 			command.Parameters.AddWithValue("@Period", shift.Period.Code);
 			command.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
 
-			object newShiftId = command.ExecuteScalar();
+			int rowsAffected = command.ExecuteNonQuery();
 
-			if (newShiftId == null || newShiftId == DBNull.Value)
+			if (rowsAffected != 1)
 			{
 				throw new InvalidOperationException("Failed to create the shift.");
 			}
@@ -178,32 +179,16 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 				{
 					using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
 					command2.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-					command2.Parameters.AddWithValue("@ShiftId", newShiftId);
+					command2.Parameters.AddWithValue("@Date", shift.Date);
+					command2.Parameters.AddWithValue("@Period", shift.Period.Code);
 
 					command2.ExecuteNonQuery();
-				}
-			}
-
-			// Create a new Shift instance to return, which includes the newly generated shift ID from the database
-			Shift createdShift = new Shift(
-				shiftId: Convert.ToInt32(newShiftId),
-				date: shift.Date,
-				period: shift.Period,
-				manager: shift.Manager
-			);
-
-			foreach (Employee employee in shift.Employees.Values)
-			{
-				// Don't add the manager to the employee list again, as they are already part of the shift
-				if (employee.EmployeeId != shift.Manager.EmployeeId)
-				{
-					createdShift.AddEmployee(employee);
 				}
 			}
 			
 			transaction.Commit();
 
-			return createdShift;
+			return shift;
 		}
 		catch (Exception)
 		{
@@ -221,17 +206,17 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 		const string query1 = """
 			UPDATE shifts
 			SET [date] = @Date, period = @Period, manager_id = @ManagerId
-			WHERE shift_id = @ShiftId;
+			WHERE [date] = @Date AND period = @Period;
 		""";
 
 		const string query2 = """
 			DELETE FROM employee_shifts
-			WHERE shift_id = @ShiftId;
+			WHERE shift_date = @Date AND shift_period = @Period;
 		""";
 
 		const string query3 = """
-			INSERT INTO employee_shifts (employee_id, shift_id)
-			VALUES (@EmployeeId, @ShiftId);
+			INSERT INTO employee_shifts (employee_id, shift_date, shift_period)
+			VALUES (@EmployeeId, @Date, @Period);
 		""";
 
 		// Release the connection after use with `using`
@@ -245,19 +230,19 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 			command1.Parameters.AddWithValue("@Date", shift.Date);
 			command1.Parameters.AddWithValue("@Period", shift.Period.Code);
 			command1.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
-			command1.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
 
-			int rowsAffected = command1.ExecuteNonQuery();
+			int rowsAffected1 = command1.ExecuteNonQuery();
 
-			if (rowsAffected != 1)
+			if (rowsAffected1 != 1)
 			{
-				throw new KeyNotFoundException($"Shift with ID {shift.ShiftId} not found.");
+				throw new KeyNotFoundException($"Shift with Date {shift.Date} and Period {shift.Period} not found.");
 			}
 
 			// Clear existing employee associations for the shift in the employee_shifts junction table,
 			// as the number of employees assigned to the shift may have changed
 			using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
-			command2.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
+			command2.Parameters.AddWithValue("@Date", shift.Date);
+			command2.Parameters.AddWithValue("@Period", shift.Period.Code);
 
 			command2.ExecuteNonQuery();
 
@@ -269,7 +254,8 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 				{
 					using SqlCommand command3 = new SqlCommand(query3, connection, transaction);
 					command3.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-					command3.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
+					command3.Parameters.AddWithValue("@Date", shift.Date);
+					command3.Parameters.AddWithValue("@Period", shift.Period.Code);
 
 					command3.ExecuteNonQuery();
 				}
@@ -287,26 +273,27 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 	/// <summary>
 	/// Deletes a shift from the database by its unique identifier.
 	/// </summary>
-	/// <param name="id">The unique identifier of the shift to delete.</param>
+	/// <param name="key">The key of the shift to delete.</param>
 	/// <exception cref="KeyNotFoundException">Thrown when the shift with the specified unique identifier is not found.</exception>
-	public void Delete(int id)
+	public void Delete(ShiftKey key)
 	{
 		const string query = """
 			DELETE FROM shifts
-			WHERE shift_id = @ShiftId;
+			WHERE [date] = @Date AND period = @Period;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@ShiftId", id);
+		command.Parameters.AddWithValue("@Date", key.Date);
+		command.Parameters.AddWithValue("@Period", key.Period);
 
 		int rowsAffected = command.ExecuteNonQuery();
 		
 		if (rowsAffected != 1)
 		{
-			throw new KeyNotFoundException($"Shift with ID {id} not found.");
+			throw new KeyNotFoundException($"Shift with Date {key.Date} and Period {key.Period} not found.");
 		}
 	}
 
