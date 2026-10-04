@@ -3,24 +3,24 @@ namespace PedrosCantina.Library.Models;
 public class Employee
 {
 	/// <summary>
-	/// Gets or sets the unique identifier for the employee.
+	/// Gets the unique identifier for the employee.
 	/// </summary>
-	public int EmployeeId { get; init; }
+	public int EmployeeId { get; private set; }
 
 	/// <summary>
 	/// Gets or sets the name of the employee.
 	/// </summary>
-	public string Name { get; init; } = string.Empty;
+	public string Name { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the email address of the employee.
 	/// </summary>
-	public string Email { get; init; } = string.Empty;
+	public string Email { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Gets or sets the phone number of the employee.
 	/// </summary>
-	public string PhoneNumber { get; init; } = string.Empty;
+	public string PhoneNumber { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Employee"/> class.

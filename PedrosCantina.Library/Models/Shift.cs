@@ -8,19 +8,19 @@ public class Shift
 	private readonly List<Employee> _employees = new List<Employee>();
 
 	/// <summary>
-	/// Gets or sets the unique identifier for the shift.
+	/// Gets the unique identifier for the shift.
 	/// </summary>
-	public int ShiftId { get; init; }
+	public int ShiftId { get; private set; }
 
 	/// <summary>
 	/// Gets or sets the date of the shift.
 	/// </summary>
-	public DateOnly Date { get; init; }
+	public DateOnly Date { get; set; }
 
 	/// <summary>
 	/// Gets or sets the period of the shift.
 	/// </summary>
-	public ShiftPeriod Period { get; init; }
+	public ShiftPeriod Period { get; set; }
 
 	/// <summary>
 	/// Gets the list of employees assigned to the shift.
@@ -30,7 +30,7 @@ public class Shift
 	/// <summary>
 	/// Gets or sets the manager responsible for the shift.
 	/// </summary>
-	public Manager Manager { get; init; }
+	public Manager Manager { get; set; }
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="Shift"/> class.

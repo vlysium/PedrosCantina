@@ -179,8 +179,6 @@ public class ShiftRepository : ICrudOperations<Shift>
 				}
 			}
 
-			transaction.Commit();
-			
 			// Create a new Shift instance to return, which includes the newly generated shift ID from the database
 			Shift createdShift = new Shift(shiftId, shift.Date, shift.Period, shift.Manager);
 			foreach (Employee employee in shift.Employees)
@@ -191,6 +189,8 @@ public class ShiftRepository : ICrudOperations<Shift>
 					createdShift.AddEmployee(employee);
 				}
 			}
+			
+			transaction.Commit();
 
 			return createdShift;
 		}
@@ -218,12 +218,11 @@ public class ShiftRepository : ICrudOperations<Shift>
 	/// <returns>The populated ShiftPeriod instance.</returns>
 	private ShiftPeriod PopulateShiftPeriod(SqlDataReader reader)
 	{
-		return new ShiftPeriod
-		{
-			Code = reader.GetString(reader.GetOrdinal("period")),
-			StartTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("start_time"))),
-			EndTime = TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("end_time")))
-		};
+		return new ShiftPeriod(
+			code: reader.GetString(reader.GetOrdinal("period")),
+			startTime: TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("start_time"))),
+			endTime: TimeOnly.FromTimeSpan(reader.GetTimeSpan(reader.GetOrdinal("end_time")))
+		);
 	}
 
 	/// <summary>
@@ -233,13 +232,12 @@ public class ShiftRepository : ICrudOperations<Shift>
 	/// <returns>The populated Manager instance.</returns>
 	private Manager PopulateManager(SqlDataReader reader)
 	{
-		return new Manager
-		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
-			Name = reader.GetString(reader.GetOrdinal("manager_name")),
-			Email = reader.GetString(reader.GetOrdinal("manager_email")),
-			PhoneNumber = reader.GetString(reader.GetOrdinal("manager_phone_number"))
-		};
+		return new Manager(
+			employeeId: reader.GetInt32(reader.GetOrdinal("manager_id")),
+			name: reader.GetString(reader.GetOrdinal("manager_name")),
+			email: reader.GetString(reader.GetOrdinal("manager_email")),
+			phoneNumber: reader.GetString(reader.GetOrdinal("manager_phone_number"))
+		);
 	}
 
 	/// <summary>
@@ -249,12 +247,11 @@ public class ShiftRepository : ICrudOperations<Shift>
 	/// <returns>The populated Employee instance.</returns>
 	private Employee PopulateEmployee(SqlDataReader reader)
 	{
-		return new Employee
-		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-			Name = reader.GetString(reader.GetOrdinal("employee_name")),
-			Email = reader.GetString(reader.GetOrdinal("employee_email")),
-			PhoneNumber = reader.GetString(reader.GetOrdinal("employee_phone_number"))
-		};
+		return new Employee(
+			employeeId: reader.GetInt32(reader.GetOrdinal("employee_id")),
+			name: reader.GetString(reader.GetOrdinal("employee_name")),
+			email: reader.GetString(reader.GetOrdinal("employee_email")),
+			phoneNumber: reader.GetString(reader.GetOrdinal("employee_phone_number"))
+		);
 	}
 }

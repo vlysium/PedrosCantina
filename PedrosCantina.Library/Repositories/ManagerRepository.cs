@@ -122,13 +122,12 @@ public class ManagerRepository : ICrudOperations<Manager>
 
 			transaction.Commit();
 
-			return new Manager
-			{
-				EmployeeId = Convert.ToInt32(newManagerId),
-				Name = manager.Name,
-				Email = manager.Email,
-				PhoneNumber = manager.PhoneNumber
-			};
+			return new Manager(
+				employeeId: Convert.ToInt32(newManagerId),
+				name: manager.Name,
+				email: manager.Email,
+				phoneNumber: manager.PhoneNumber
+			);
 		}
 
 		catch (Exception)
@@ -203,12 +202,11 @@ public class ManagerRepository : ICrudOperations<Manager>
 	/// <returns>A new Manager instance populated with the data from the reader.</returns>
 	private Manager PopulateManager(SqlDataReader reader)
 	{
-		return new Manager
-		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("manager_id")),
-			Name = reader.GetString(reader.GetOrdinal("name")),
-			Email = reader.GetString(reader.GetOrdinal("email")),
-			PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-		};
+		return new Manager(
+			employeeId: reader.GetInt32(reader.GetOrdinal("manager_id")),
+			name: reader.GetString(reader.GetOrdinal("name")),
+			email: reader.GetString(reader.GetOrdinal("email")),
+			phoneNumber: reader.GetString(reader.GetOrdinal("phone_number"))
+		);
 	}
 }

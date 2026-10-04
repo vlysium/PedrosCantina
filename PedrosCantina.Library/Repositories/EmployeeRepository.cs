@@ -41,13 +41,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 			return null;
 		}
 
-		return new Employee
-		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-			Name = reader.GetString(reader.GetOrdinal("name")),
-			Email = reader.GetString(reader.GetOrdinal("email")),
-			PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-		};
+		return PopulateEmployee(reader);
 	}
 
 	/// <summary>
@@ -71,13 +65,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 
 		while (reader.Read())
 		{
-			employees.Add(new Employee
-			{
-				EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-				Name = reader.GetString(reader.GetOrdinal("name")),
-				Email = reader.GetString(reader.GetOrdinal("email")),
-				PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-			});
+			employees.Add(PopulateEmployee(reader));
 		}
 
 		return employees;
@@ -112,13 +100,12 @@ public class EmployeeRepository : ICrudOperations<Employee>
 			throw new InvalidOperationException("Failed to create employee.");
 		}
 
-		return new Employee
-		{
-			EmployeeId = Convert.ToInt32(newEmployeeId),
-			Name = employee.Name,
-			Email = employee.Email,
-			PhoneNumber = employee.PhoneNumber
-		};
+		return new Employee(
+			employeeId: Convert.ToInt32(newEmployeeId),
+			name: employee.Name,
+			email: employee.Email,
+			phoneNumber: employee.PhoneNumber
+		);
 	}
 
 	/// <summary>
@@ -181,12 +168,21 @@ public class EmployeeRepository : ICrudOperations<Employee>
 			throw new KeyNotFoundException($"Employee with ID {id} not found.");
 		}
 
-		return new Employee
-		{
-			EmployeeId = reader.GetInt32(reader.GetOrdinal("employee_id")),
-			Name = reader.GetString(reader.GetOrdinal("name")),
-			Email = reader.GetString(reader.GetOrdinal("email")),
-			PhoneNumber = reader.GetString(reader.GetOrdinal("phone_number"))
-		};
+		return PopulateEmployee(reader);
+	}
+
+	/// <summary>
+	/// Populates an Employee instance from a SqlDataReader.
+	/// </summary>
+	/// <param name="reader">The SqlDataReader to read from.</param>
+	/// <returns>The populated Employee instance.</returns>
+	private Employee PopulateEmployee(SqlDataReader reader)
+	{
+		return new Employee(
+			employeeId: reader.GetInt32(reader.GetOrdinal("employee_id")),
+			name: reader.GetString(reader.GetOrdinal("name")),
+			email: reader.GetString(reader.GetOrdinal("email")),
+			phoneNumber: reader.GetString(reader.GetOrdinal("phone_number"))
+		);
 	}
 }
