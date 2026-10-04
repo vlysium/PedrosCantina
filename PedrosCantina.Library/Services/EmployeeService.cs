@@ -8,7 +8,7 @@ public class EmployeeService
 	/// <summary>
 	/// The employee repository used to perform CRUD operations on employees.
 	/// </summary>
-	private readonly ICrudOperations<Employee> _employeeRepository;
+	private readonly ICrudOperations<Employee, int> _employeeRepository;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="EmployeeService"/> class with the specified employee repository and manager repository.

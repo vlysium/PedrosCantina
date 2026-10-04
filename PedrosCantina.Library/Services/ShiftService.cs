@@ -8,7 +8,7 @@ public class ShiftService
 	/// <summary>
 	/// The shift repository used to perform CRUD operations on shifts.
 	/// </summary>
-	private readonly ICrudOperations<Shift> _shiftRepository;
+	private readonly ICrudOperations<Shift, int> _shiftRepository;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ShiftService"/> class with the specified shift repository.
