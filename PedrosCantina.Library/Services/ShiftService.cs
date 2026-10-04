@@ -14,7 +14,7 @@ public class ShiftService
 	/// Initializes a new instance of the <see cref="ShiftService"/> class with the specified shift repository.
 	/// </summary>
 	/// <param name="shiftRepository">The shift repository to use for CRUD operations.</param>
-	public ShiftService(ShiftRepository shiftRepository)
+	public ShiftService(ICrudOperations<Shift, int> shiftRepository)
 	{
 		_shiftRepository = shiftRepository;
 	}

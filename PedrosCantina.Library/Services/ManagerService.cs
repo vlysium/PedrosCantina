@@ -14,7 +14,7 @@ public class ManagerService
 	/// Initializes a new instance of the <see cref="ManagerService"/> class with the specified manager repository.
 	/// </summary>
 	/// <param name="managerRepository">The manager repository used to perform CRUD operations on managers.</param>
-	public ManagerService(ManagerRepository managerRepository)
+	public ManagerService(ICrudOperations<Manager, int> managerRepository)
 	{
 		_managerRepository = managerRepository;
 	}

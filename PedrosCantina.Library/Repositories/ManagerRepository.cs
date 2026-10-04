@@ -3,7 +3,7 @@ using PedrosCantina.Library.Models;
 
 namespace PedrosCantina.Library.Repositories;
 
-public class ManagerRepository : ICrudOperations<Manager, int>
+public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations<Manager, int>
 {
 	/// <summary>
 	/// The database worker used to interact with the database.

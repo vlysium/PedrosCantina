@@ -14,7 +14,7 @@ public class EmployeeService
 	/// Initializes a new instance of the <see cref="EmployeeService"/> class with the specified employee repository and manager repository.
 	/// </summary>
 	/// <param name="employeeRepository">The employee repository used to perform CRUD operations on employees.</param>
-	public EmployeeService(EmployeeRepository employeeRepository)
+	public EmployeeService(ICrudOperations<Employee, int> employeeRepository)
 	{
 		_employeeRepository = employeeRepository;
 	}

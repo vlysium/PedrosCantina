@@ -3,7 +3,7 @@ using PedrosCantina.Library.Models;
 
 namespace PedrosCantina.Library.Repositories;
 
-public class ShiftRepository : ICrudOperations<Shift, int>
+public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shift, int>
 {
 	/// <summary>
 	/// The database worker used to interact with the database.
