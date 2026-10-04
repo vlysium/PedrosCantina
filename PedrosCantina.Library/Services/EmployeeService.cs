@@ -20,15 +20,6 @@ public class EmployeeService
 	}
 
 	/// <summary>
-	/// Gets all employees from the employee repository.
-	/// </summary>
-	/// <returns>A list of all employees in the database.</returns>
-	public List<Employee> GetAllEmployees()
-	{
-		return _employeeRepository.ReadAll();
-	}
-
-	/// <summary>
 	/// Gets an employee by their unique identifier.
 	/// </summary>
 	/// <param name="id">The unique identifier of the employee to get.</param>
@@ -36,6 +27,15 @@ public class EmployeeService
 	public Employee? GetEmployeeById(int id)
 	{
 		return _employeeRepository.ReadById(id);
+	}
+
+	/// <summary>
+	/// Gets all employees from the employee repository.
+	/// </summary>
+	/// <returns>A list of all employees in the database.</returns>
+	public List<Employee> GetAllEmployees()
+	{
+		return _employeeRepository.ReadAll();
 	}
 
 	/// <summary>
