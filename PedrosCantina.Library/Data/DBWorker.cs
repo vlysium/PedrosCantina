@@ -8,7 +8,7 @@ public class DBWorker
 	/// <summary>
 	/// The SQL connection used to interact with the database.
 	/// </summary>
-	private SqlConnection _connection;
+	private SqlConnection _connection = null!;
 
 	/// <summary>
 	/// The connection string used to connect to the database.

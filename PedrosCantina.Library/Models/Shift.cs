@@ -33,25 +33,17 @@ public class Shift
 	public Manager Manager { get; set; }
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Shift"/> class with the specified manager. The manager is automatically added to the shift's employee list.
-	/// </summary>
-	/// <param name="manager">The manager responsible for the shift.</param>
-	public Shift(Manager manager)
-	{
-		Manager = manager;
-		AddEmployee(manager); // Automatically add the manager to the shift's employee list to ensure they are part of the shift.
-	}
-
-	/// <summary>
-	/// Initializes a new instance of the <see cref="Shift"/> class with the specified date, period, and manager.
+	/// Initializes a new instance of the <see cref="Shift"/> class with the specified date, period, and manager. The manager is automatically added to the shift's employee list.
 	/// </summary>
 	/// <param name="date">The date of the shift.</param>
 	/// <param name="period">The period of the shift.</param>
 	/// <param name="manager">The manager responsible for the shift.</param>
-	public Shift(DateOnly date, ShiftPeriod period, Manager manager): this(manager)
+	public Shift(DateOnly date, ShiftPeriod period, Manager manager)
 	{
 		Date = date;
 		Period = period;
+		Manager = manager;
+		AddEmployee(manager); // Automatically add the manager to the shift's employee list to ensure they are part of the shift.
 	}
 
 	/// <summary>
