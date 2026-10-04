@@ -273,9 +273,30 @@ public class ShiftRepository : ICrudOperations<Shift>
 		}
 	}
 
+	/// <summary>
+	/// Deletes a shift from the database by its unique identifier.
+	/// </summary>
+	/// <param name="id">The unique identifier of the shift to delete.</param>
+	/// <exception cref="KeyNotFoundException">Thrown when the shift with the specified unique identifier is not found.</exception>
 	public void Delete(int id)
 	{
-		throw new NotImplementedException();
+		const string query = """
+			DELETE FROM shifts
+			WHERE shift_id = @ShiftId;
+		""";
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+
+		using SqlCommand command = new SqlCommand(query, connection);
+		command.Parameters.AddWithValue("@ShiftId", id);
+
+		int rowsAffected = command.ExecuteNonQuery();
+		
+		if (rowsAffected != 1)
+		{
+			throw new KeyNotFoundException($"Shift with ID {id} not found.");
+		}
 	}
 
 	/// <summary>
