@@ -164,7 +164,12 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 			command.Parameters.AddWithValue("@Period", shift.Period.Code);
 			command.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
 
-			int shiftId = (int)command.ExecuteScalar()!;
+			object newShiftId = command.ExecuteScalar();
+
+			if (newShiftId == null || newShiftId == DBNull.Value)
+			{
+				throw new InvalidOperationException("Failed to create the shift.");
+			}
 
 			foreach (Employee employee in shift.Employees.Values)
 			{
@@ -173,14 +178,20 @@ public class ShiftRepository : IReadOperations<Shift, int>, IWriteOperations<Shi
 				{
 					using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
 					command2.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-					command2.Parameters.AddWithValue("@ShiftId", shiftId);
+					command2.Parameters.AddWithValue("@ShiftId", newShiftId);
 
 					command2.ExecuteNonQuery();
 				}
 			}
 
 			// Create a new Shift instance to return, which includes the newly generated shift ID from the database
-			Shift createdShift = new Shift(shiftId, shift.Date, shift.Period, shift.Manager);
+			Shift createdShift = new Shift(
+				shiftId: Convert.ToInt32(newShiftId),
+				date: shift.Date,
+				period: shift.Period,
+				manager: shift.Manager
+			);
+
 			foreach (Employee employee in shift.Employees.Values)
 			{
 				// Don't add the manager to the employee list again, as they are already part of the shift
