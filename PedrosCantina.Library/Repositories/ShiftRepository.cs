@@ -201,9 +201,74 @@ public class ShiftRepository : ICrudOperations<Shift>
 		}
 	}
 
-	public Shift Update(Shift entity)
+	/// <summary>
+	/// Updates an existing shift in the database, including its associated shift period, manager, and employees.
+	/// </summary>
+	/// <param name="shift">The shift to update.</param>
+	/// <returns>The updated shift.</returns>
+	public Shift Update(Shift shift)
 	{
-		throw new NotImplementedException();
+		const string query1 = """
+			UPDATE shifts
+			SET [date] = @Date, period = @Period, manager_id = @ManagerId
+			WHERE shift_id = @ShiftId;
+		""";
+
+		const string query2 = """
+			DELETE FROM employee_shifts
+			WHERE shift_id = @ShiftId;
+		""";
+
+		const string query3 = """
+			INSERT INTO employee_shifts (employee_id, shift_id)
+			VALUES (@EmployeeId, @ShiftId);
+		""";
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+		using SqlTransaction transaction = connection.BeginTransaction();
+
+		try
+		{
+			// Update the shift details in the shifts table
+			using SqlCommand command1 = new SqlCommand(query1, connection, transaction);
+			command1.Parameters.AddWithValue("@Date", shift.Date);
+			command1.Parameters.AddWithValue("@Period", shift.Period.Code);
+			command1.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
+			command1.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
+
+			command1.ExecuteNonQuery();
+
+			// Clear existing employee associations for the shift in the employee_shifts junction table,
+			// as the number of employees assigned to the shift may have changed
+			using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
+			command2.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
+
+			command2.ExecuteNonQuery();
+
+			// Re-insert the updated employee associations for the shift in the employee_shifts junction table
+			foreach (Employee employee in shift.Employees.Values)
+			{
+				// The manager of the shift does not need to be added to the employee_shifts junction table
+				if (employee.EmployeeId != shift.Manager.EmployeeId)
+				{
+					using SqlCommand command3 = new SqlCommand(query3, connection, transaction);
+					command3.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
+					command3.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
+
+					command3.ExecuteNonQuery();
+				}
+			}
+
+			transaction.Commit();
+
+			return shift;
+		}
+		catch (Exception)
+		{
+			transaction.Rollback();
+			throw;
+		}
 	}
 
 	public Shift Delete(int id)
