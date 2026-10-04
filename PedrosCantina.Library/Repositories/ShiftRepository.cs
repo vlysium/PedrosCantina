@@ -205,8 +205,7 @@ public class ShiftRepository : ICrudOperations<Shift>
 	/// Updates an existing shift in the database, including its associated shift period, manager, and employees.
 	/// </summary>
 	/// <param name="shift">The shift to update.</param>
-	/// <returns>The updated shift.</returns>
-	public Shift Update(Shift shift)
+	public void Update(Shift shift)
 	{
 		const string query1 = """
 			UPDATE shifts
@@ -237,7 +236,12 @@ public class ShiftRepository : ICrudOperations<Shift>
 			command1.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
 			command1.Parameters.AddWithValue("@ShiftId", shift.ShiftId);
 
-			command1.ExecuteNonQuery();
+			int rowsAffected = command1.ExecuteNonQuery();
+
+			if (rowsAffected != 1)
+			{
+				throw new KeyNotFoundException($"Shift with ID {shift.ShiftId} not found.");
+			}
 
 			// Clear existing employee associations for the shift in the employee_shifts junction table,
 			// as the number of employees assigned to the shift may have changed
@@ -261,8 +265,6 @@ public class ShiftRepository : ICrudOperations<Shift>
 			}
 
 			transaction.Commit();
-
-			return shift;
 		}
 		catch (Exception)
 		{
@@ -271,7 +273,7 @@ public class ShiftRepository : ICrudOperations<Shift>
 		}
 	}
 
-	public Shift Delete(int id)
+	public void Delete(int id)
 	{
 		throw new NotImplementedException();
 	}

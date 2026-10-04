@@ -32,9 +32,8 @@ public class ManagerService
 	/// Demotes a manager to a regular employee.
 	/// </summary>
 	/// <param name="id">The ID of the manager to demote.</param>
-	/// <returns>The demoted manager, now a regular employee.</returns>
-	public Employee DemoteManager(int id)
+	public void DemoteManager(int id)
 	{
-		return _managerRepository.Delete(id);
+		_managerRepository.Delete(id);
 	}
 }

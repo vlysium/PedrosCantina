@@ -141,9 +141,8 @@ public class ManagerRepository : ICrudOperations<Manager>
 	/// Updates an existing manager in the database.
 	/// </summary>
 	/// <param name="manager">The manager to update.</param>
-	/// <returns>The updated manager.</returns>
 	/// <exception cref="NotImplementedException">This method is not implemented, as there is no need to update a manager separately from an employee. Implemented through the <see cref="EmployeeRepository.Update(Employee)"/> method instead.</exception>
-	public Manager Update(Manager manager)
+	public void Update(Manager manager)
 	{
 		throw new NotImplementedException();
 	}
@@ -152,20 +151,13 @@ public class ManagerRepository : ICrudOperations<Manager>
 	/// Deletes a manager from the database by their unique identifier.
 	/// This method only deletes the manager from the managers table, but does not delete the corresponding employee from the employees table, effectively demoting the manager to a regular employee.
 	/// </summary>
-	/// <param name="id">The unique identifier of the manager to delete.</param>
-	/// <returns>The manager affected by the deletion.</returns>
+	/// <param name="id">The unique identifier of the manager to delete from the manager table.</param>
 	/// <exception cref="KeyNotFoundException">Thrown when the manager with the specified ID is not found.</exception>
-	public Manager Delete(int id)
+	public void Delete(int id)
 	{
 		const string query1 = """
 			DELETE FROM managers
 			WHERE manager_id = @Id;
-		""";
-
-		const string query2 = """
-			SELECT employee_id, name, email, phone_number
-			FROM employees
-			WHERE employee_id = @Id;
 		""";
 
 		// Release the connection after use with `using`
@@ -180,19 +172,6 @@ public class ManagerRepository : ICrudOperations<Manager>
 		{
 			throw new KeyNotFoundException($"Manager with ID {id} not found.");
 		}
-
-		using SqlCommand command2 = new SqlCommand(query2, connection);
-		
-		command2.Parameters.AddWithValue("@Id", id);
-
-		using SqlDataReader reader = command2.ExecuteReader();
-
-		if (!reader.Read())
-		{
-			throw new KeyNotFoundException($"Employee with ID {id} not found.");
-		}
-
-		return PopulateManager(reader);
 	}
 
 	/// <summary>

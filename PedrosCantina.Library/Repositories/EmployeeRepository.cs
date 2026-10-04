@@ -114,7 +114,7 @@ public class EmployeeRepository : ICrudOperations<Employee>
 	/// <param name="employee">The employee to update.</param>
 	/// <returns>The updated employee.</returns>
 	/// <exception cref="KeyNotFoundException">Thrown when the employee with the specified unique identifier is not found.</exception>
-	public Employee Update(Employee employee)
+	public void Update(Employee employee)
 	{
 		const string query = """
 			UPDATE employees
@@ -137,21 +137,17 @@ public class EmployeeRepository : ICrudOperations<Employee>
 		{
 			throw new KeyNotFoundException($"Employee with ID {employee.EmployeeId} not found.");
 		}
-
-		return employee;
 	}
 
 	/// <summary>
 	/// Deletes an employee from the database by their unique identifier.
 	/// </summary>
 	/// <param name="id">The unique identifier of the employee to delete.</param>
-	/// <returns>The deleted employee.</returns>
 	/// <exception cref="KeyNotFoundException">Thrown when the employee with the specified unique identifier is not found.</exception>
-	public Employee Delete(int id)
+	public void Delete(int id)
 	{
 		const string query = """
 			DELETE FROM employees
-			OUTPUT DELETED.employee_id, DELETED.name, DELETED.email, DELETED.phone_number
 			WHERE employee_id = @Id;
 		""";
 
@@ -161,14 +157,12 @@ public class EmployeeRepository : ICrudOperations<Employee>
 		using SqlCommand command = new SqlCommand(query, connection);
 		command.Parameters.AddWithValue("@Id", id);
 
-		using SqlDataReader reader = command.ExecuteReader();
+		int rowsAffected = command.ExecuteNonQuery();
 
-		if (!reader.Read())
+		if (rowsAffected != 1)
 		{
 			throw new KeyNotFoundException($"Employee with ID {id} not found.");
 		}
-
-		return PopulateEmployee(reader);
 	}
 
 	/// <summary>
