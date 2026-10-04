@@ -166,7 +166,7 @@ public class ShiftRepository : ICrudOperations<Shift>
 
 			int shiftId = (int)command.ExecuteScalar()!;
 
-			foreach (Employee employee in shift.Employees)
+			foreach (Employee employee in shift.Employees.Values)
 			{
 				// Don't insert into employee_shifts if the employee is the manager of the shift
 				if (employee.EmployeeId != shift.Manager.EmployeeId)
@@ -181,7 +181,7 @@ public class ShiftRepository : ICrudOperations<Shift>
 
 			// Create a new Shift instance to return, which includes the newly generated shift ID from the database
 			Shift createdShift = new Shift(shiftId, shift.Date, shift.Period, shift.Manager);
-			foreach (Employee employee in shift.Employees)
+			foreach (Employee employee in shift.Employees.Values)
 			{
 				// Don't add the manager to the employee list again, as they are already part of the shift
 				if (employee.EmployeeId != shift.Manager.EmployeeId)

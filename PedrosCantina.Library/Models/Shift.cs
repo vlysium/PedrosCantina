@@ -3,9 +3,9 @@ namespace PedrosCantina.Library.Models;
 public class Shift
 {
 	/// <summary>
-	/// The list of employees assigned to the shift.
+	/// Gets the employees assigned to the shift, where the key is the employee's unique identifier.
 	/// </summary>
-	private readonly List<Employee> _employees = new List<Employee>();
+	private readonly Dictionary<int, Employee> _employees = new Dictionary<int, Employee>();
 
 	/// <summary>
 	/// Gets the unique identifier for the shift.
@@ -23,9 +23,9 @@ public class Shift
 	public ShiftPeriod Period { get; set; }
 
 	/// <summary>
-	/// Gets the list of employees assigned to the shift.
+	/// Gets the employees assigned to the shift, where the key is the employee's unique identifier.
 	/// </summary>
-	public IReadOnlyList<Employee> Employees { get => _employees; }
+	public IReadOnlyDictionary<int, Employee> Employees => _employees;
 
 	/// <summary>
 	/// Gets or sets the manager responsible for the shift.
@@ -33,7 +33,7 @@ public class Shift
 	public Manager Manager { get; set; }
 
 	/// <summary>
-	/// Initializes a new instance of the <see cref="Shift"/> class.
+	/// Initializes a new instance of the <see cref="Shift"/> class with the specified manager. The manager is automatically added to the shift's employee list.
 	/// </summary>
 	/// <param name="manager">The manager responsible for the shift.</param>
 	public Shift(Manager manager)
@@ -69,15 +69,11 @@ public class Shift
 	/// <summary>
 	/// Adds an employee to the shift. Only up to 3 employees can be assigned to a shift.
 	/// </summary>
-	/// <param name="employee">The employee to add to the shift.</param>
-	/// <exception cref="ArgumentNullException">Thrown when the employee is null.</exception>
-	/// <exception cref="ArgumentException">Thrown when the employee is already assigned to the shift.</exception>
-	/// <exception cref="InvalidOperationException">Thrown when the maximum number of employees (3) is exceeded.</exception>
 	public void AddEmployee(Employee employee)
 	{
-		ArgumentNullException.ThrowIfNull(employee, nameof(employee));
+		ArgumentNullException.ThrowIfNull(employee);
 
-		if (_employees.Contains(employee))
+		if (_employees.ContainsKey(employee.EmployeeId))
 		{
 			throw new ArgumentException("Employee is already assigned to this shift.", nameof(employee));
 		}
@@ -87,35 +83,31 @@ public class Shift
 			throw new InvalidOperationException("Cannot add more than 3 employees to a shift.");
 		}
 
-		_employees.Add(employee);
+		_employees.Add(employee.EmployeeId, employee);
 	}
 
 	/// <summary>
 	/// Removes an employee from the shift.
 	/// </summary>
-	/// <param name="employee">The employee to remove from the shift.</param>
-	/// <exception cref="ArgumentNullException">Thrown when the employee is null.</exception>
-	/// <exception cref="ArgumentException">Thrown when the employee is the manager of the shift.</exception>
-	/// <exception cref="InvalidOperationException">Thrown when the employee is not assigned to the shift.</exception>
 	public void RemoveEmployee(Employee employee)
 	{
-		ArgumentNullException.ThrowIfNull(employee, nameof(employee));
+		ArgumentNullException.ThrowIfNull(employee);
 
-		if (employee == Manager)
+		if (employee.EmployeeId == Manager.EmployeeId)
 		{
 			throw new ArgumentException("Cannot remove the manager from the shift.", nameof(employee));
 		}
 
-		if (!_employees.Contains(employee))
+		if (!_employees.ContainsKey(employee.EmployeeId))
 		{
 			throw new InvalidOperationException("Employee is not assigned to this shift.");
 		}
 
-		_employees.Remove(employee);
+		_employees.Remove(employee.EmployeeId);
 	}
 
 	public override string ToString()
 	{
-		return $"ShiftId: {ShiftId}, Date: {Date}, Period: {Period}, Manager: {Manager.Name}, Employees: [{string.Join(", ", _employees.Select(e => e.Name))}]";
+		return $"ShiftId: {ShiftId}, Date: {Date}, Period: {Period}, Manager: {Manager.Name}, Employees: [{string.Join(", ", _employees.Values.Select(e => e.Name))}]";
 	}
 }
