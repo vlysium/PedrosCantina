@@ -28,18 +28,12 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	{
 		const string query = """
 			SELECT
-				s.[date] AS shift_date,
-				sp.period, sp.start_time, sp.end_time,
-				m.manager_id, manager.name AS manager_name, manager.email AS manager_email, manager.phone_number AS manager_phone_number,
-				e.employee_id, e.name AS employee_name, e.email AS employee_email, e.phone_number AS employee_phone_number
-			FROM shifts AS s
-			JOIN shift_periods AS sp ON s.period = sp.period
-			JOIN managers AS m ON s.manager_id = m.manager_id
-			JOIN employees AS manager ON m.manager_id = manager.employee_id
-			JOIN employee_shifts AS es ON s.[date] = es.shift_date AND s.period = es.shift_period
-			JOIN employees AS e ON es.employee_id = e.employee_id
-			WHERE s.[date] = @Date AND s.period = @Period
-			ORDER BY shift_date, sp.start_time;
+				shift_date, period, start_time, end_time,
+				manager_id, manager_name, manager_email, manager_phone_number,
+				employee_id, employee_name, employee_email, employee_phone_number
+			FROM vw_shift_details
+			WHERE shift_date = @Date AND period = @Period
+			ORDER BY shift_date, start_time;
 		""";
 
 		Shift? shift = null;
@@ -86,17 +80,11 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	{
 		const string query = """
 			SELECT
-				s.[date] AS shift_date,
-				sp.period, sp.start_time, sp.end_time,
-				m.manager_id, manager.name AS manager_name, manager.email AS manager_email, manager.phone_number AS manager_phone_number,
-				e.employee_id, e.name AS employee_name, e.email AS employee_email, e.phone_number AS employee_phone_number
-			FROM shifts AS s
-			JOIN shift_periods AS sp ON s.period = sp.period
-			JOIN managers AS m ON s.manager_id = m.manager_id
-			JOIN employees AS manager ON m.manager_id = manager.employee_id
-			JOIN employee_shifts AS es ON s.[date] = es.shift_date AND s.period = es.shift_period
-			JOIN employees AS e ON es.employee_id = e.employee_id
-			ORDER BY shift_date, sp.start_time;
+				shift_date, period, start_time, end_time,
+				manager_id, manager_name, manager_email, manager_phone_number,
+				employee_id, employee_name, employee_email, employee_phone_number
+			FROM vw_shift_details
+			ORDER BY shift_date, start_time;
 		""";
 
 		// Using a dictionary for faster lookups compared to a list

@@ -43,3 +43,24 @@ CREATE TABLE [employee_shifts] (
     CONSTRAINT [FK_employee_shifts_employees] FOREIGN KEY ([employee_id]) REFERENCES [employees] ([employee_id]) ON DELETE CASCADE,
     CONSTRAINT [FK_employee_shifts_shifts] FOREIGN KEY ([shift_date], [shift_period]) REFERENCES [shifts] ([date], [period]) ON DELETE CASCADE
 );
+
+-- View definitions
+
+-- Manager details view (result of joining managers and employees to get manager details)
+CREATE VIEW [vw_manager_details] AS
+    SELECT m.manager_id, e.name, e.email, e.phone_number
+    FROM managers AS m
+    JOIN employees AS e ON e.employee_id = m.manager_id;
+
+-- Shift details view (result of joining shifts, shift_periods, managers, employees, and employee_shifts to get detailed shift information)
+CREATE VIEW [vw_shift_details] AS
+    SELECT
+        s.[date] AS shift_date, sp.period, sp.start_time, sp.end_time,
+        m.manager_id, manager.name AS manager_name, manager.email AS manager_email, manager.phone_number AS manager_phone_number,
+        e.employee_id, e.name AS employee_name, e.email AS employee_email, e.phone_number AS employee_phone_number
+    FROM shifts AS s
+    INNER JOIN shift_periods AS sp ON s.period = sp.period
+    INNER JOIN managers AS m ON s.manager_id = m.manager_id
+    INNER JOIN employees AS manager ON m.manager_id = manager.employee_id
+    INNER JOIN employee_shifts AS es ON s.[date] = es.shift_date AND s.period = es.shift_period
+    INNER JOIN employees AS e ON es.employee_id = e.employee_id;

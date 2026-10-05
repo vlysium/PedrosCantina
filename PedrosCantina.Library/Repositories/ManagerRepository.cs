@@ -23,9 +23,8 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 	public Manager? ReadById(int id)
 	{
 		const string query = """
-			SELECT manager_id, employees.name, employees.email, employees.phone_number
-			FROM managers
-			JOIN employees ON managers.manager_id = employees.employee_id
+			SELECT manager_id, name, email, phone_number
+			FROM vw_manager_details
 			WHERE manager_id = @Id;
 		""";
 
@@ -52,9 +51,8 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 	public List<Manager> ReadAll()
 	{
 		const string query = """
-			SELECT manager_id, employees.name, employees.email, employees.phone_number
-			FROM managers
-			JOIN employees ON managers.manager_id = employees.employee_id;
+			SELECT manager_id, name, email, phone_number
+			FROM vw_manager_details
 		""";
 
 		List<Manager> managers = new List<Manager>();
