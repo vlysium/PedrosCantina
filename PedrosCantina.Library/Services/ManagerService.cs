@@ -8,13 +8,13 @@ public class ManagerService
 	/// <summary>
 	/// The manager repository used to perform CRUD operations on managers.
 	/// </summary>
-	private readonly ICrudOperations<Manager, int> _managerRepository;
+	private readonly ManagerRepository _managerRepository;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ManagerService"/> class with the specified manager repository.
 	/// </summary>
 	/// <param name="managerRepository">The manager repository used to perform CRUD operations on managers.</param>
-	public ManagerService(ICrudOperations<Manager, int> managerRepository)
+	public ManagerService(ManagerRepository managerRepository)
 	{
 		_managerRepository = managerRepository;
 	}

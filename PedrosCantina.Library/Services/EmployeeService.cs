@@ -8,13 +8,13 @@ public class EmployeeService
 	/// <summary>
 	/// The employee repository used to perform CRUD operations on employees.
 	/// </summary>
-	private readonly ICrudOperations<Employee, int> _employeeRepository;
+	private readonly EmployeeRepository _employeeRepository;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="EmployeeService"/> class with the specified employee repository and manager repository.
 	/// </summary>
 	/// <param name="employeeRepository">The employee repository used to perform CRUD operations on employees.</param>
-	public EmployeeService(ICrudOperations<Employee, int> employeeRepository)
+	public EmployeeService(EmployeeRepository employeeRepository)
 	{
 		_employeeRepository = employeeRepository;
 	}

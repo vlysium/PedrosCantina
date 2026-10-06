@@ -8,13 +8,13 @@ public class ShiftPeriodService
 	/// <summary>
 	/// The shift period repository used to perform read operations on shift periods.
 	/// </summary>
-	private readonly IReadOperations<ShiftPeriod, string> _shiftPeriodRepository;
+	private readonly ShiftPeriodRepository _shiftPeriodRepository;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ShiftPeriodService"/> class with the specified shift period repository.
 	/// </summary>
 	/// <param name="shiftPeriodRepository">The shift period repository to use for read operations.</param>
-	public ShiftPeriodService(IReadOperations<ShiftPeriod, string> shiftPeriodRepository)
+	public ShiftPeriodService(ShiftPeriodRepository shiftPeriodRepository)
 	{
 		_shiftPeriodRepository = shiftPeriodRepository;
 	}
