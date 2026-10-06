@@ -25,14 +25,14 @@ public class EmployeeRepository : IReadOperations<Employee, int>, IWriteOperatio
 		const string query = """
 			SELECT employee_id, name, email, phone_number
 			FROM employees
-			WHERE employee_id = @Id;
+			WHERE employee_id = @id;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Id", id);
+		command.Parameters.AddWithValue("@id", id);
 
 		using SqlDataReader reader = command.ExecuteReader();
 
@@ -82,16 +82,16 @@ public class EmployeeRepository : IReadOperations<Employee, int>, IWriteOperatio
 		const string query = """
 			INSERT INTO employees (name, email, phone_number)
 			OUTPUT INSERTED.employee_id
-			VALUES (@Name, @Email, @PhoneNumber);
+			VALUES (@name, @email, @phone_number);
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Name", employee.Name);
-		command.Parameters.AddWithValue("@Email", employee.Email);
-		command.Parameters.AddWithValue("@PhoneNumber", employee.PhoneNumber);
+		command.Parameters.AddWithValue("@name", employee.Name);
+		command.Parameters.AddWithValue("@email", employee.Email);
+		command.Parameters.AddWithValue("@phone_number", employee.PhoneNumber);
 
 		object newEmployeeId = command.ExecuteScalar();
 
@@ -118,18 +118,18 @@ public class EmployeeRepository : IReadOperations<Employee, int>, IWriteOperatio
 	{
 		const string query = """
 			UPDATE employees
-			SET name = @Name, email = @Email, phone_number = @PhoneNumber
-			WHERE employee_id = @Id;
+			SET name = @name, email = @email, phone_number = @phone_number
+			WHERE employee_id = @id;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Id", employee.EmployeeId);
-		command.Parameters.AddWithValue("@Name", employee.Name);
-		command.Parameters.AddWithValue("@Email", employee.Email);
-		command.Parameters.AddWithValue("@PhoneNumber", employee.PhoneNumber);
+		command.Parameters.AddWithValue("@id", employee.EmployeeId);
+		command.Parameters.AddWithValue("@name", employee.Name);
+		command.Parameters.AddWithValue("@email", employee.Email);
+		command.Parameters.AddWithValue("@phone_number", employee.PhoneNumber);
 
 		int rowsAffected = command.ExecuteNonQuery();
 
@@ -148,14 +148,14 @@ public class EmployeeRepository : IReadOperations<Employee, int>, IWriteOperatio
 	{
 		const string query = """
 			DELETE FROM employees
-			WHERE employee_id = @Id;
+			WHERE employee_id = @id;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Id", id);
+		command.Parameters.AddWithValue("@id", id);
 
 		int rowsAffected = command.ExecuteNonQuery();
 

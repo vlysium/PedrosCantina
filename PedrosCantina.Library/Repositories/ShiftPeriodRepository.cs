@@ -29,14 +29,14 @@ public class ShiftPeriodRepository : IReadOperations<ShiftPeriod, string>
 		const string query = """
 			SELECT period, start_time, end_time
 			FROM shift_periods
-			WHERE period = @Period;
+			WHERE period = @period;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Period", period);
+		command.Parameters.AddWithValue("@period", period);
 
 		using SqlDataReader reader = command.ExecuteReader();
 

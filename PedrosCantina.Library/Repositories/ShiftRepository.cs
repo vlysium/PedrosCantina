@@ -32,7 +32,7 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 				manager_id, manager_name, manager_email, manager_phone_number,
 				employee_id, employee_name, employee_email, employee_phone_number
 			FROM vw_shift_details
-			WHERE shift_date = @Date AND period = @Period
+			WHERE shift_date = @date AND period = @period
 			ORDER BY shift_date, start_time;
 		""";
 
@@ -42,8 +42,8 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Date", key.Date);
-    	command.Parameters.AddWithValue("@Period", key.Period);
+		command.Parameters.AddWithValue("@date", key.Date);
+    	command.Parameters.AddWithValue("@period", key.Period);
 
 		using SqlDataReader reader = command.ExecuteReader();
 
@@ -134,12 +134,12 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	{
 		const string query1 = """
 			INSERT INTO shifts ([date], period, manager_id)
-			VALUES (@Date, @Period, @ManagerId);
+			VALUES (@date, @period, @manager_id);
 		""";
 
 		const string query2 = """
 			INSERT INTO employee_shifts (employee_id, shift_date, shift_period)
-			VALUES (@EmployeeId, @Date, @Period);
+			VALUES (@employee_id, @date, @period);
 		""";
 
 		// Release the connection after use with `using`
@@ -149,9 +149,9 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 		try
 		{
 			using SqlCommand command = new SqlCommand(query1, connection, transaction);
-			command.Parameters.AddWithValue("@Date", shift.Date);
-			command.Parameters.AddWithValue("@Period", shift.Period.Code);
-			command.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
+			command.Parameters.AddWithValue("@date", shift.Date);
+			command.Parameters.AddWithValue("@period", shift.Period.Code);
+			command.Parameters.AddWithValue("@manager_id", shift.Manager.EmployeeId);
 
 			int rowsAffected = command.ExecuteNonQuery();
 
@@ -163,9 +163,9 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 			foreach (Employee employee in shift.Employees.Values)
 			{
 				using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
-				command2.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-				command2.Parameters.AddWithValue("@Date", shift.Date);
-				command2.Parameters.AddWithValue("@Period", shift.Period.Code);
+				command2.Parameters.AddWithValue("@employee_id", employee.EmployeeId);
+				command2.Parameters.AddWithValue("@date", shift.Date);
+				command2.Parameters.AddWithValue("@period", shift.Period.Code);
 
 				command2.ExecuteNonQuery();
 			}
@@ -189,18 +189,18 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	{
 		const string query1 = """
 			UPDATE shifts
-			SET [date] = @Date, period = @Period, manager_id = @ManagerId
-			WHERE [date] = @Date AND period = @Period;
+			SET [date] = @date, period = @period, manager_id = @manager_id
+			WHERE [date] = @date AND period = @period;
 		""";
 
 		const string query2 = """
 			DELETE FROM employee_shifts
-			WHERE shift_date = @Date AND shift_period = @Period;
+			WHERE shift_date = @date AND shift_period = @period;
 		""";
 
 		const string query3 = """
 			INSERT INTO employee_shifts (employee_id, shift_date, shift_period)
-			VALUES (@EmployeeId, @Date, @Period);
+			VALUES (@employee_id, @date, @period);
 		""";
 
 		// Release the connection after use with `using`
@@ -211,9 +211,9 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 		{
 			// Update the shift details in the shifts table
 			using SqlCommand command1 = new SqlCommand(query1, connection, transaction);
-			command1.Parameters.AddWithValue("@Date", shift.Date);
-			command1.Parameters.AddWithValue("@Period", shift.Period.Code);
-			command1.Parameters.AddWithValue("@ManagerId", shift.Manager.EmployeeId);
+			command1.Parameters.AddWithValue("@date", shift.Date);
+			command1.Parameters.AddWithValue("@period", shift.Period.Code);
+			command1.Parameters.AddWithValue("@manager_id", shift.Manager.EmployeeId);
 
 			int rowsAffected1 = command1.ExecuteNonQuery();
 
@@ -225,8 +225,8 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 			// Clear existing employee associations for the shift in the employee_shifts junction table,
 			// as the number of employees assigned to the shift may have changed
 			using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
-			command2.Parameters.AddWithValue("@Date", shift.Date);
-			command2.Parameters.AddWithValue("@Period", shift.Period.Code);
+			command2.Parameters.AddWithValue("@date", shift.Date);
+			command2.Parameters.AddWithValue("@period", shift.Period.Code);
 
 			command2.ExecuteNonQuery();
 
@@ -234,9 +234,9 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 			foreach (Employee employee in shift.Employees.Values)
 			{
 				using SqlCommand command3 = new SqlCommand(query3, connection, transaction);
-				command3.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-				command3.Parameters.AddWithValue("@Date", shift.Date);
-				command3.Parameters.AddWithValue("@Period", shift.Period.Code);
+				command3.Parameters.AddWithValue("@employee_id", employee.EmployeeId);
+				command3.Parameters.AddWithValue("@date", shift.Date);
+				command3.Parameters.AddWithValue("@period", shift.Period.Code);
 
 				command3.ExecuteNonQuery();
 			}
@@ -259,15 +259,15 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	{
 		const string query = """
 			DELETE FROM shifts
-			WHERE [date] = @Date AND period = @Period;
+			WHERE [date] = @date AND period = @period;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Date", key.Date);
-		command.Parameters.AddWithValue("@Period", key.Period);
+		command.Parameters.AddWithValue("@date", key.Date);
+		command.Parameters.AddWithValue("@period", key.Period);
 
 		int rowsAffected = command.ExecuteNonQuery();
 		
@@ -291,7 +291,7 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 				manager_id, manager_name, manager_email, manager_phone_number,
 				employee_id, employee_name, employee_email, employee_phone_number
 			FROM vw_shift_details
-			WHERE shift_date >= DATEFROMPARTS(@Year, @Month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
+			WHERE shift_date >= DATEFROMPARTS(@year, @month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@year, @month, 1))
 			ORDER BY shift_date, start_time;
 		""";
 
@@ -301,8 +301,8 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Year", year);
-		command.Parameters.AddWithValue("@Month", month);
+		command.Parameters.AddWithValue("@year", year);
+		command.Parameters.AddWithValue("@month", month);
 
 		using SqlDataReader reader = command.ExecuteReader();
 
@@ -340,8 +340,8 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 		const string query = """
 			SELECT COUNT(*) AS shifts_worked
 			FROM vw_shift_details
-			WHERE shift_date >= DATEFROMPARTS(@Year, @Month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1)) 
-				AND employee_id = @EmployeeId
+			WHERE shift_date >= DATEFROMPARTS(@year, @month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@year, @month, 1)) 
+				AND employee_id = @employee_id
 			GROUP BY employee_id, employee_name, employee_email, employee_phone_number
 			ORDER BY shifts_worked DESC;
 		""";
@@ -350,9 +350,9 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Year", date.Year);
-		command.Parameters.AddWithValue("@Month", date.Month);
-		command.Parameters.AddWithValue("@EmployeeId", employeeId);
+		command.Parameters.AddWithValue("@year", date.Year);
+		command.Parameters.AddWithValue("@month", date.Month);
+		command.Parameters.AddWithValue("@employee_id", employeeId);
 
 		using SqlDataReader reader = command.ExecuteReader();
 

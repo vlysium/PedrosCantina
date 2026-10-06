@@ -25,14 +25,14 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 		const string query = """
 			SELECT manager_id, name, email, phone_number
 			FROM vw_manager_details
-			WHERE manager_id = @Id;
+			WHERE manager_id = @id;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Id", id);
+		command.Parameters.AddWithValue("@id", id);
 
 		using SqlDataReader reader = command.ExecuteReader();
 
@@ -82,12 +82,12 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 		const string query1 = """
 			INSERT INTO employees (name, email, phone_number)
 			OUTPUT INSERTED.employee_id
-			VALUES (@Name, @Email, @PhoneNumber);
+			VALUES (@name, @email, @phone_number);
 		""";
 
 		const string query2 = """
 			INSERT INTO managers (manager_id)
-			VALUES (@Id);
+			VALUES (@id);
 		""";
 
 		// Release the connection after use with `using`
@@ -97,9 +97,9 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 		try
 		{
 			using SqlCommand command1 = new SqlCommand(query1, connection, transaction);
-			command1.Parameters.AddWithValue("@Name", manager.Name);
-			command1.Parameters.AddWithValue("@Email", manager.Email);
-			command1.Parameters.AddWithValue("@PhoneNumber", manager.PhoneNumber);
+			command1.Parameters.AddWithValue("@name", manager.Name);
+			command1.Parameters.AddWithValue("@email", manager.Email);
+			command1.Parameters.AddWithValue("@phone_number", manager.PhoneNumber);
 
 			object newManagerId = command1.ExecuteScalar();
 
@@ -109,7 +109,7 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 			}
 
 			using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
-			command2.Parameters.AddWithValue("@Id", Convert.ToInt32(newManagerId));
+			command2.Parameters.AddWithValue("@id", Convert.ToInt32(newManagerId));
 
 			int rowsAffected = command2.ExecuteNonQuery();
 
@@ -155,14 +155,14 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 	{
 		const string query1 = """
 			DELETE FROM managers
-			WHERE manager_id = @Id;
+			WHERE manager_id = @id;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command1 = new SqlCommand(query1, connection);
-		command1.Parameters.AddWithValue("@Id", id);
+		command1.Parameters.AddWithValue("@id", id);
 
 		int rowsAffected = command1.ExecuteNonQuery();
 

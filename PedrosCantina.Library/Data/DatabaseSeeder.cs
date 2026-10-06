@@ -92,13 +92,13 @@ public class DatabaseSeeder
 		{
 			const string query = """
 				INSERT INTO shift_periods (period, start_time, end_time)
-				VALUES (@Period, @StartTime, @EndTime)
+				VALUES (@period, @start_time, @end_time)
 			""";
 
 			using SqlCommand command = new(query, connection);
-			command.Parameters.AddWithValue("@Period", period.Code);
-			command.Parameters.AddWithValue("@StartTime", period.StartTime);
-			command.Parameters.AddWithValue("@EndTime", period.EndTime);
+			command.Parameters.AddWithValue("@period", period.Code);
+			command.Parameters.AddWithValue("@start_time", period.StartTime);
+			command.Parameters.AddWithValue("@end_time", period.EndTime);
 
 			command.ExecuteNonQuery();
 		}
