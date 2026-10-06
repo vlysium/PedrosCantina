@@ -334,16 +334,16 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	/// </summary>
 	/// <param name="date">The year and month for which to read shifts.</param>
 	/// <param name="employeeId">The ID of the employee for whom to read shifts.</param>
-	/// <returns>The number of shifts worked by the specified employee in the given month and year.</returns>
-	public int ReadMonthlyShiftsByEmployeeId(DateOnly date, int employeeId)
+	/// <returns>The employee shift summary for the specified employee in the given month and year.</returns>
+	public EmployeeShiftSummary ReadMonthlyShiftsByEmployeeId(DateOnly date, int employeeId)
 	{
 		const string query = """
-			SELECT COUNT(*) AS shifts_worked
-			FROM vw_shift_details
-			WHERE shift_date >= DATEFROMPARTS(@year, @month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@year, @month, 1)) 
-				AND employee_id = @employee_id
-			GROUP BY employee_id, employee_name, employee_email, employee_phone_number
-			ORDER BY shifts_worked DESC;
+			SELECT e.employee_id, e.name, e.email, e.phone_number, COUNT(es.employee_id) AS shifts_worked
+			FROM employees e
+			LEFT JOIN employee_shifts es ON es.employee_id = e.employee_id
+				AND es.shift_date >= DATEFROMPARTS(@year, @month, 1) AND es.shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@year, @month, 1))
+			WHERE e.employee_id = @employee_id
+			GROUP BY e.employee_id, e.name, e.email, e.phone_number;
 		""";
 
 		// Release the connection after use with `using`
@@ -358,10 +358,13 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 
 		if (!reader.Read())
 		{
-			return 0; // No shifts found for the specified employee in the given month and year
+			throw new KeyNotFoundException($"Employee with ID {employeeId} was not found.");
 		}
 
-		return reader.GetInt32(reader.GetOrdinal("shifts_worked"));
+		EmployeeShiftSummary employeeShiftSummary = (EmployeeShiftSummary)PopulateEmployee(reader);
+		employeeShiftSummary.ShiftsWorked = reader.GetInt32(reader.GetOrdinal("shifts_worked"));
+
+		return employeeShiftSummary;
 	}
 
 	/// <summary>
