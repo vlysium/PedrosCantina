@@ -259,6 +259,33 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	}
 
 	/// <summary>
+	/// Deletes a shift from the database by its unique identifier.
+	/// </summary>
+	/// <param name="key">The key of the shift to delete.</param>
+	/// <exception cref="KeyNotFoundException">Thrown when the shift with the specified unique identifier is not found.</exception>
+	public void Delete(ShiftKey key)
+	{
+		const string query = """
+			DELETE FROM shifts
+			WHERE [date] = @Date AND period = @Period;
+		""";
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+
+		using SqlCommand command = new SqlCommand(query, connection);
+		command.Parameters.AddWithValue("@Date", key.Date);
+		command.Parameters.AddWithValue("@Period", key.Period);
+
+		int rowsAffected = command.ExecuteNonQuery();
+		
+		if (rowsAffected != 1)
+		{
+			throw new KeyNotFoundException($"Shift with Date {key.Date} and Period {key.Period} not found.");
+		}
+	}
+
+	/// <summary>
 	/// Reads all shifts for a specific month and year from the database, including their associated shift periods, managers, and employees.
 	/// </summary>
 	/// <param name="year">The year for which to read shifts.</param>
@@ -311,30 +338,38 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	}
 
 	/// <summary>
-	/// Deletes a shift from the database by its unique identifier.
+	/// Reads the number of shifts worked by a specific employee in a given month and year from the database.
 	/// </summary>
-	/// <param name="key">The key of the shift to delete.</param>
-	/// <exception cref="KeyNotFoundException">Thrown when the shift with the specified unique identifier is not found.</exception>
-	public void Delete(ShiftKey key)
+	/// <param name="date">The year and month for which to read shifts.</param>
+	/// <param name="employeeId">The ID of the employee for whom to read shifts.</param>
+	/// <returns>The number of shifts worked by the specified employee in the given month and year.</returns>
+	public int ReadMonthlyShiftsByEmployeeId(DateOnly date, int employeeId)
 	{
 		const string query = """
-			DELETE FROM shifts
-			WHERE [date] = @Date AND period = @Period;
+			SELECT COUNT(*) AS shifts_worked
+			FROM vw_shift_details
+			WHERE shift_date >= DATEFROMPARTS(@Year, @Month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1)) 
+				AND employee_id = @EmployeeId
+			GROUP BY employee_id, employee_name, employee_email, employee_phone_number
+			ORDER BY shifts_worked DESC;
 		""";
 
 		// Release the connection after use with `using`
 		using SqlConnection connection = _dbWorker.Connect();
 
 		using SqlCommand command = new SqlCommand(query, connection);
-		command.Parameters.AddWithValue("@Date", key.Date);
-		command.Parameters.AddWithValue("@Period", key.Period);
+		command.Parameters.AddWithValue("@Year", date.Year);
+		command.Parameters.AddWithValue("@Month", date.Month);
+		command.Parameters.AddWithValue("@EmployeeId", employeeId);
 
-		int rowsAffected = command.ExecuteNonQuery();
-		
-		if (rowsAffected != 1)
+		using SqlDataReader reader = command.ExecuteReader();
+
+		if (!reader.Read())
 		{
-			throw new KeyNotFoundException($"Shift with Date {key.Date} and Period {key.Period} not found.");
+			return 0; // No shifts found for the specified employee in the given month and year
 		}
+
+		return reader.GetInt32(reader.GetOrdinal("shifts_worked"));
 	}
 
 	/// <summary>

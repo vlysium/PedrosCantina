@@ -76,4 +76,15 @@ public class ShiftService
 	{
 		return _shiftRepository.ReadByMonth(month, year);
 	}
+
+	/// <summary>
+	/// Gets the number of shifts worked by a specific employee in a given month and year.
+	/// </summary>
+	/// <param name="date">The year and month for which to get the number of shifts.</param>
+	/// <param name="employeeId">The ID of the employee for whom to get the number of shifts.</param>
+	/// <returns>The number of shifts worked by the specified employee in the given month and year.</returns>
+	public int GetMonthlyShiftsByEmployeeId(DateOnly date, int employeeId)
+	{
+		return _shiftRepository.ReadMonthlyShiftsByEmployeeId(date, employeeId);
+	}
 }
