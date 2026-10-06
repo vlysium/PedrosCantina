@@ -8,13 +8,13 @@ public class ShiftService
 	/// <summary>
 	/// The shift repository used to perform CRUD operations on shifts.
 	/// </summary>
-	private readonly ICrudOperations<Shift, int> _shiftRepository;
+	private readonly ShiftRepository _shiftRepository;
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="ShiftService"/> class with the specified shift repository.
 	/// </summary>
 	/// <param name="shiftRepository">The shift repository to use for CRUD operations.</param>
-	public ShiftService(ICrudOperations<Shift, int> shiftRepository)
+	public ShiftService(ShiftRepository shiftRepository)
 	{
 		_shiftRepository = shiftRepository;
 	}
@@ -22,11 +22,11 @@ public class ShiftService
 	/// <summary>
 	/// Gets a shift by its unique identifier.
 	/// </summary>
-	/// <param name="id">The unique identifier of the shift to get.</param>
+	/// <param name="key">The unique identifier of the shift to get.</param>
 	/// <returns>The shift if found, otherwise null.</returns>
-	public Shift? GetShiftById(int id)
+	public Shift? GetShiftById(ShiftKey key)
 	{
-		return _shiftRepository.ReadById(id);
+		return _shiftRepository.ReadById(key);
 	}
 
 	/// <summary>
@@ -60,9 +60,20 @@ public class ShiftService
 	/// <summary>
 	/// Deletes a shift from the shift repository by its unique identifier.
 	/// </summary>
-	/// <param name="id">The unique identifier of the shift to delete.</param>
-	public void DeleteShift(int id)
+	/// <param name="key">The unique identifier of the shift to delete.</param>
+	public void DeleteShift(ShiftKey key)
 	{
-		_shiftRepository.Delete(id);
+		_shiftRepository.Delete(key);
+	}
+
+	/// <summary>
+	/// Gets the monthly plan for a specific month and year.
+	/// </summary>
+	/// <param name="month">The month for which to get the plan.</param>
+	/// <param name="year">The year for which to get the plan.</param>
+	/// <returns>A list of shifts for the specified month and year sorted by date and start time.</returns>
+	public List<Shift> GetMonthlyPlan(int month, int year)
+	{
+		return _shiftRepository.ReadByMonth(month, year);
 	}
 }

@@ -259,6 +259,58 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	}
 
 	/// <summary>
+	/// Reads all shifts for a specific month and year from the database, including their associated shift periods, managers, and employees.
+	/// </summary>
+	/// <param name="year">The year for which to read shifts.</param>
+	/// <param name="month">The month for which to read shifts.</param>
+	/// <returns>A list of shifts for the specified month and year.</returns>
+	public List<Shift> ReadByMonth(int year, int month)
+	{
+		const string query = """
+			SELECT
+				shift_date, period, start_time, end_time,
+				manager_id, manager_name, manager_email, manager_phone_number,
+				employee_id, employee_name, employee_email, employee_phone_number
+			FROM vw_shift_details
+			WHERE shift_date >= DATEFROMPARTS(@Year, @Month, 1) AND shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
+			ORDER BY shift_date, start_time;
+		""";
+
+		Dictionary<ShiftKey, Shift> shifts = new Dictionary<ShiftKey, Shift>();
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+
+		using SqlCommand command = new SqlCommand(query, connection);
+		command.Parameters.AddWithValue("@Year", year);
+		command.Parameters.AddWithValue("@Month", month);
+
+		using SqlDataReader reader = command.ExecuteReader();
+
+		while (reader.Read())
+		{
+			DateOnly date = DateOnly.FromDateTime(reader.GetDateTime(reader.GetOrdinal("shift_date")));
+
+			ShiftPeriod period = PopulateShiftPeriod(reader);
+			Manager manager = PopulateManager(reader);
+
+			ShiftKey key = new ShiftKey(date, period);
+			
+			// Check if the shift already exists in the dictionary; if not, create a new Shift instance
+			if (!shifts.TryGetValue(key, out Shift? existingShift))
+			{
+				existingShift = new Shift(date, period, manager);
+				shifts.Add(key, existingShift);
+			}
+
+			Employee employee = PopulateEmployee(reader);
+			existingShift.AddEmployee(employee);
+		}
+
+		return shifts.Values.ToList();
+	}
+
+	/// <summary>
 	/// Deletes a shift from the database by its unique identifier.
 	/// </summary>
 	/// <param name="key">The key of the shift to delete.</param>
