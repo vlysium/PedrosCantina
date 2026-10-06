@@ -162,16 +162,12 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 
 			foreach (Employee employee in shift.Employees.Values)
 			{
-				// Don't insert into employee_shifts if the employee is the manager of the shift
-				if (employee.EmployeeId != shift.Manager.EmployeeId)
-				{
-					using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
-					command2.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-					command2.Parameters.AddWithValue("@Date", shift.Date);
-					command2.Parameters.AddWithValue("@Period", shift.Period.Code);
+				using SqlCommand command2 = new SqlCommand(query2, connection, transaction);
+				command2.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
+				command2.Parameters.AddWithValue("@Date", shift.Date);
+				command2.Parameters.AddWithValue("@Period", shift.Period.Code);
 
-					command2.ExecuteNonQuery();
-				}
+				command2.ExecuteNonQuery();
 			}
 			
 			transaction.Commit();
@@ -237,16 +233,12 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 			// Re-insert the updated employee associations for the shift in the employee_shifts junction table
 			foreach (Employee employee in shift.Employees.Values)
 			{
-				// The manager of the shift does not need to be added to the employee_shifts junction table
-				if (employee.EmployeeId != shift.Manager.EmployeeId)
-				{
-					using SqlCommand command3 = new SqlCommand(query3, connection, transaction);
-					command3.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
-					command3.Parameters.AddWithValue("@Date", shift.Date);
-					command3.Parameters.AddWithValue("@Period", shift.Period.Code);
+				using SqlCommand command3 = new SqlCommand(query3, connection, transaction);
+				command3.Parameters.AddWithValue("@EmployeeId", employee.EmployeeId);
+				command3.Parameters.AddWithValue("@Date", shift.Date);
+				command3.Parameters.AddWithValue("@Period", shift.Period.Code);
 
-					command3.ExecuteNonQuery();
-				}
+				command3.ExecuteNonQuery();
 			}
 
 			transaction.Commit();
