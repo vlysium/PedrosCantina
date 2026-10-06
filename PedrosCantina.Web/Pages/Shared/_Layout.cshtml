@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="da">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - PedrosCantina.Web</title>
+	<script type="importmap"></script>
+	<link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+	<script defer src="~/js/site.js" asp-append-version="true"></script>
+</head>
+
+<body>
+	<div class="container">
+		<main>
+			@RenderBody()
+		</main>
+	</div>
+
+	<footer>
+		<div>
+			&copy; 2026 - PedrosCantina.Web
+		</div>
+	</footer>
+
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

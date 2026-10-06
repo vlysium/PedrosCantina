@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="PedrosCantina.Console/PedrosCantina.Console.csproj" />
   <Project Path="PedrosCantina.Library/PedrosCantina.Library.csproj" />
+  <Project Path="PedrosCantina.Web/PedrosCantina.Web.csproj" />
 </Solution>
