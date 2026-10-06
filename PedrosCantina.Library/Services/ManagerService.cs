@@ -20,6 +20,15 @@ public class ManagerService
 	}
 
 	/// <summary>
+	/// Retrieves all managers from the repository.
+	/// </summary>
+	/// <returns>A list of all managers.</returns>
+	public List<Manager> GetAllManagers()
+	{
+		return _managerRepository.ReadAll();
+	}
+
+	/// <summary>
 	/// Adds a new manager to the repository.
 	/// </summary>
 	/// <param name="manager">The manager to add.</param>
