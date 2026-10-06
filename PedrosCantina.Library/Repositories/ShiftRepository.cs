@@ -368,6 +368,43 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	}
 
 	/// <summary>
+	/// Reads the distribution of shifts worked by all employees in a given year from the database.
+	/// </summary>
+	/// <param name="date">The year for which to read shifts.</param>
+	/// <returns>A list of employee shift summaries for the specified year ordered by the number of shifts worked in descending order.</returns>
+	public List<EmployeeShiftSummary> ReadEmployeeShiftDistributionByYear(DateOnly date)
+	{
+		const string query = """
+			SELECT e.employee_id, e.name, e.email, e.phone_number, COUNT(es.employee_id) AS shifts_worked
+			FROM employees e
+			LEFT JOIN employee_shifts es ON es.employee_id = e.employee_id
+				AND es.shift_date >= DATEFROMPARTS(@year, 1, 1) AND es.shift_date < DATEADD(YEAR, 1, DATEFROMPARTS(@year, 1, 1))
+			GROUP BY e.employee_id, e.name, e.email, e.phone_number
+			ORDER BY shifts_worked DESC;
+		""";
+
+		List<EmployeeShiftSummary> employeeShiftSummaries = new List<EmployeeShiftSummary>();
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+
+		using SqlCommand command = new SqlCommand(query, connection);
+		command.Parameters.AddWithValue("@year", date.Year);
+
+		using SqlDataReader reader = command.ExecuteReader();
+
+		while (reader.Read())
+		{
+			EmployeeShiftSummary employeeShiftSummary = (EmployeeShiftSummary)PopulateEmployee(reader);
+			employeeShiftSummary.ShiftsWorked = reader.GetInt32(reader.GetOrdinal("shifts_worked"));
+
+			employeeShiftSummaries.Add(employeeShiftSummary);
+		}
+
+		return employeeShiftSummaries;
+	}
+
+	/// <summary>
 	/// Helper method to populate a ShiftPeriod instance from a SqlDataReader.
 	/// </summary>
 	/// <param name="reader">The SqlDataReader containing the data.</param>

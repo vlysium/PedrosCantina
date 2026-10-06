@@ -87,4 +87,14 @@ public class ShiftService
 	{
 		return _shiftRepository.ReadMonthlyShiftsByEmployeeId(date, employeeId);
 	}
+
+	/// <summary>
+	/// Gets the distribution of shifts worked by all employees in a given year.
+	/// </summary>
+	/// <param name="date">The year for which to get the distribution of shifts.</param>
+	/// <returns>A list of employee shift summaries for the specified year ordered by the number of shifts worked in descending order.</returns>
+	public List<EmployeeShiftSummary> GetEmployeeShiftDistributionByYear(DateOnly date)
+	{
+		return _shiftRepository.ReadEmployeeShiftDistributionByYear(date);
+	}
 }
