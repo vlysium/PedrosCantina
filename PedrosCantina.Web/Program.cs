@@ -1,7 +1,21 @@
+using DotNetEnv;
+using PedrosCantina.Library;
+using PedrosCantina.Library.Repositories;
+using PedrosCantina.Library.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+string envPath = Path.Combine(builder.Environment.ContentRootPath, "..", ".env");
+Env.Load(envPath);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddSingleton<DBWorker>();
+builder.Services.AddSingleton<EmployeeService>();
+builder.Services.AddSingleton<ManagerService>();
+builder.Services.AddSingleton<EmployeeRepository>();
+builder.Services.AddSingleton<ManagerRepository>();
 
 var app = builder.Build();
 

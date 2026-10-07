@@ -11,17 +11,16 @@
 </head>
 
 <body>
-	<div class="container">
-		<main>
-			@RenderBody()
-		</main>
-	</div>
+	<nav>
+		<ul>
+			<li><a class="button" asp-page="/Index">Forside</a></li>
+			<li><a class="button" asp-page="/Employees">Medarbejdere</a></li>
+		</ul>
+	</nav>
 
-	<footer>
-		<div>
-			&copy; 2026 - PedrosCantina.Web
-		</div>
-	</footer>
+	<main>
+		@RenderBody()
+	</main>
 
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

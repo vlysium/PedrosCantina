@@ -1,0 +1,38 @@
+﻿@page "/medarbejder/{id:int}"
+@using PedrosCantina.Library.Models
+@model PedrosCantina.Web.Pages.EmployeeDetailsModel
+@{
+}
+
+<div class="table-wrapper">
+	<div class="table-container">
+		<form method="post">
+			<input type="hidden" asp-for="Employee.EmployeeId" />
+			<table>
+				<thead>
+					<tr>
+						<th data-align="right">ID</th>
+						<th>Navn</th>
+						<th>Email</th>
+						<th>Telefon nr.</th>
+						<th>Rolle</th>
+						<th data-align="center">Handlinger</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th data-align="right">@Model.Employee.EmployeeId</th>
+						<td>@Model.Employee.Name</td>
+						<td>@Model.Employee.Email</td>
+						<td>@Model.Employee.PhoneNumber</td>
+						<td>@(Model.Employee is Manager ? "Leder" : "Medarbejder")</td>
+						<td data-align="center">
+							<a class="button" asp-page="/UpdateEmployee" asp-route-id="@Model.Employee.EmployeeId">Rediger</a>
+							<button class="button" type="submit">Slet</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>

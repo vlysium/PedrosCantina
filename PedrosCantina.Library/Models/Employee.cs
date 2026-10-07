@@ -3,9 +3,9 @@ namespace PedrosCantina.Library.Models;
 public class Employee
 {
 	/// <summary>
-	/// Gets the unique identifier for the employee.
+	/// Gets or sets the unique identifier for the employee.
 	/// </summary>
-	public int EmployeeId { get; private set; }
+	public int EmployeeId { get; init; }
 
 	/// <summary>
 	/// Gets or sets the name of the employee.

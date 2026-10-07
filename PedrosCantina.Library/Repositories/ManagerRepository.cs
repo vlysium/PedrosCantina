@@ -136,13 +136,29 @@ public class ManagerRepository : IReadOperations<Manager, int>, IWriteOperations
 	}
 
 	/// <summary>
-	/// Updates an existing manager in the database.
+	/// Promotes an existing employee to a manager by inserting their ID into the managers table.
+	/// This method does not create a new employee; it assumes the employee already exists in the employees table.
 	/// </summary>
-	/// <param name="manager">The manager to update.</param>
-	/// <exception cref="NotImplementedException">This method is not implemented, as there is no need to update a manager separately from an employee. Implemented through the <see cref="EmployeeRepository.Update(Employee)"/> method instead.</exception>
+	/// <param name="manager">The manager to promote.</param>
+	/// <exception cref="InvalidOperationException">Thrown when the employee is already a manager.</exception>
 	public void Update(Manager manager)
 	{
-		throw new NotImplementedException();
+		const string query = """
+			INSERT INTO managers (manager_id)
+			VALUES (@id);
+		""";
+
+		// Release the connection after use with `using`
+		using SqlConnection connection = _dbWorker.Connect();
+
+		using SqlCommand command = new SqlCommand(query, connection);
+		command.Parameters.AddWithValue("@id", manager.EmployeeId);
+		int rowsAffected = command.ExecuteNonQuery();
+
+		if (rowsAffected != 1)
+		{
+			throw new KeyNotFoundException($"Employee with ID {manager.EmployeeId} does not exist.");
+		}
 	}
 
 	/// <summary>

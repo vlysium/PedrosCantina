@@ -1,0 +1,120 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: monospace;
+  background-color: #f4f4f4;
+  color: #333;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: max-content;
+  margin: auto;
+}
+
+.button {
+  background-color: #000;
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  line-height: normal;
+  color: #fff;
+  cursor: pointer;
+
+  &:hover, &:focus-visible {
+    outline: 1px solid #000;
+    outline-offset: 0;
+  }
+}
+
+nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+ul {
+  list-style: none;
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin: 1rem;
+}
+
+table {
+  border-collapse: collapse;
+  border: 1px solid;
+  text-align: left;
+  
+    [data-align="center"] {
+      text-align: center;
+    }
+
+  [data-align="right"] {
+    text-align: right;
+  }
+}
+
+thead {
+  border-bottom: 1px solid;
+}
+
+th, td {
+  padding: 0.5rem 0.75rem;
+}
+
+th {
+  text-wrap: nowrap;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #fff;
+}
+
+form {
+  display: contents;
+}
+
+td input, td select {
+  border: none;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-family: monospace;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+td select {
+  margin-inline: -0.25rem;
+}
+
+td:has(input, select) {
+  padding: 0;
+}

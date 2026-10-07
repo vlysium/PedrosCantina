@@ -20,6 +20,16 @@ public class ManagerService
 	}
 
 	/// <summary>
+	/// Determines whether the specified employee is a manager.
+	/// </summary>
+	/// <param name="employeeId">The unique identifier of the employee to check.</param>
+	/// <returns>True if the employee is a manager; otherwise, false.</returns>
+	public bool isManager(int employeeId)
+	{
+		return _managerRepository.ReadById(employeeId) != null;
+	}
+
+	/// <summary>
 	/// Retrieves all managers from the repository.
 	/// </summary>
 	/// <returns>A list of all managers.</returns>
@@ -35,6 +45,22 @@ public class ManagerService
 	public void AddManager(Manager manager)
 	{
 		_managerRepository.Create(manager);
+	}
+
+	/// <summary>
+	/// Promotes an existing employee to a manager by inserting their ID into the managers table.
+	/// This method does not create a new employee; it assumes the employee already exists in the employees table.
+	/// </summary>
+	/// <param name="manager">The manager to promote.</param>
+	/// <exception cref="InvalidOperationException">Thrown when the employee is already a manager.</exception>
+	public void PromoteToManager(Manager manager)
+	{
+		if (isManager(manager.EmployeeId))
+		{
+			throw new InvalidOperationException($"Employee with ID {manager.EmployeeId} is already a manager.");
+		}
+
+		_managerRepository.Update(manager);
 	}
 
 	/// <summary>

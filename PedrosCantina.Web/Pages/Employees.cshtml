@@ -1,0 +1,38 @@
+﻿@page "/medarbejdere"
+@using PedrosCantina.Library.Models
+@model PedrosCantina.Web.Pages.EmployeesModel
+@{
+}
+
+<div class="table-wrapper">
+	<div class="table-container">
+		<table>
+			<thead>
+				<tr>
+					<th data-align="right">ID</th>
+					<th>Navn</th>
+					<th>Email</th>
+					<th>Telefon nr.</th>
+					<th>Rolle</th>
+					<th data-align="center">Handlinger</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (Employee employee in Model.AllEmployees)
+				{
+					<tr>
+						<th data-align="right">@employee.EmployeeId</th>
+						<td>@employee.Name</td>
+						<td>@employee.Email</td>
+						<td>@employee.PhoneNumber</td>
+						<td>@(employee is Manager ? "Leder" : "Medarbejder")</td>
+						<td data-align="center">
+							<a class="button" asp-page="/EmployeeDetails" asp-route-id="@employee.EmployeeId">Vis</a>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+		<a class="button" asp-page="/CreateEmployee">Opret ny medarbejder</a>
+	</div>
+</div>

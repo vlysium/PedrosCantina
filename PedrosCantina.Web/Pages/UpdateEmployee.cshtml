@@ -1,0 +1,34 @@
+﻿@page "/medarbejder/{id:int}/opdater"
+@model PedrosCantina.Web.Pages.UpdateEmployeeModel
+@{
+}
+
+<div class="table-wrapper">
+	<div class="table-container">
+		<form method="post">
+			<table>
+				<input type="hidden" asp-for="Employee.EmployeeId" />
+				<thead>
+					<tr>
+						<th>Navn</th>
+						<th>Email</th>
+						<th>Telefon nr.</th>
+						<th>Rolle</th>
+						<th data-align="center">Handlinger</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><input type="text" maxlength="63" asp-for="Employee.Name" placeholder="Indtast navn" /></td>
+						<td><input type="email" maxlength="255" asp-for="Employee.Email" placeholder="Indtast email" /></td>
+						<td><input type="tel" minlength="8" maxlength="8" asp-for="Employee.PhoneNumber" placeholder="Indtast telefonnummer" /></td>
+						<td><select asp-for="EmployeeRole" asp-items="Model.Roles"></select></td>
+						<td data-align="center">
+							<button class="button" type="submit">Gem</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>
