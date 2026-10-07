@@ -6,7 +6,7 @@ using PedrosCantina.Library.Services;
 
 namespace PedrosCantina.Web.Pages
 {
-    public class CreateShiftModel : PageModel
+    public class UpdateShiftModel : PageModel
     {
         /// <summary>
         /// Gets the shift service used to create shifts for the create shift page.
@@ -51,6 +51,11 @@ namespace PedrosCantina.Web.Pages
         /// <summary>
         /// Gets or sets the date of the shift to be created on the create shift page.
         /// </summary>
+        public Shift Shift { get; set; } = new Shift();
+
+        /// <summary>
+        /// Gets or sets the date of the shift to be created on the create shift page.
+        /// </summary>
         [BindProperty]
         public DateOnly Date { get; set; }
 
@@ -79,13 +84,13 @@ namespace PedrosCantina.Web.Pages
         public int EmployeeIdToAdd2 { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CreateShiftModel"/> class with the specified shift service.
+        /// Initializes a new instance of the <see cref="UpdateShiftModel"/> class with the specified shift service, shift period service, employee service, and manager service.
         /// </summary>
         /// <param name="shiftService">The shift service to use.</param>
         /// <param name="shiftPeriodService">The shift period service to use.</param>
         /// <param name="employeeService">The employee service to use.</param>
         /// <param name="managerService">The manager service to use.</param>
-        public CreateShiftModel(ShiftService shiftService, ShiftPeriodService shiftPeriodService, EmployeeService employeeService, ManagerService managerService)
+        public UpdateShiftModel(ShiftService shiftService, ShiftPeriodService shiftPeriodService, EmployeeService employeeService, ManagerService managerService)
         {
             _shiftService = shiftService;
             _shiftPeriodService = shiftPeriodService;
@@ -102,8 +107,26 @@ namespace PedrosCantina.Web.Pages
                 return RedirectToPage("/MonthlyPlan", new { year = DateTime.Now.Year, month = DateTime.Now.Month });
             }
 
+            ShiftKey shiftKey = new ShiftKey(parsedDate, shiftPeriod);
+
+            Shift? shift = _shiftService.GetShiftById(shiftKey);
+
+            if (shift == null)
+            {
+                return RedirectToPage("/MonthlyPlan", new { year = DateTime.Now.Year, month = DateTime.Now.Month });
+            }
+
+            Shift = shift;
+
             Date = parsedDate;
             Period = shiftPeriod.GetCapitalizedCode();
+
+            ManagerId = Shift.Manager.EmployeeId;
+
+            List<Employee> employees = Shift.Employees.Values.ToList();
+
+            EmployeeIdToAdd1 = employees.ElementAtOrDefault(1)?.EmployeeId ?? 0;
+            EmployeeIdToAdd2 = employees.ElementAtOrDefault(2)?.EmployeeId ?? 0;
 
             ManagerSelectList = new SelectList(_managerService.GetAllManagers(), "EmployeeId", "Name");
             EmployeeSelectList = new SelectList(_employeeService.GetAllEmployees(), "EmployeeId", "Name");
@@ -119,23 +142,23 @@ namespace PedrosCantina.Web.Pages
             Employee? employeeToAdd1 = _employeeService.GetEmployeeById(EmployeeIdToAdd1);
             Employee? employeeToAdd2 = _employeeService.GetEmployeeById(EmployeeIdToAdd2);
 
-            Shift newShift = new Shift(parsedDate, shiftPeriod, manager);
+            Shift updatedShift = new Shift(parsedDate, shiftPeriod, manager);
 
             // Add employees to the shift if they are not null and not the same employee
-            if (employeeToAdd1 != null)
+            if (employeeToAdd1 != null && employeeToAdd1.EmployeeId != manager.EmployeeId)
             {
-                newShift.AddEmployee(employeeToAdd1);
+                updatedShift.AddEmployee(employeeToAdd1);
             }
 
-            // Add the second employee only if they are not null and not the same as the first employee
-            if (employeeToAdd2 != null && employeeToAdd2.EmployeeId != employeeToAdd1?.EmployeeId)
+            // Add the second employee only if they are not null and not the same as the first employee or the manager
+            if (employeeToAdd2 != null && employeeToAdd2.EmployeeId != manager.EmployeeId && employeeToAdd2.EmployeeId != employeeToAdd1?.EmployeeId)
             {
-                newShift.AddEmployee(employeeToAdd2);
+                updatedShift.AddEmployee(employeeToAdd2);
             }
 
-            _shiftService.AddShift(newShift);
+            _shiftService.UpdateShift(updatedShift);
 
-            return RedirectToPage("/ShiftDetails", new { date = parsedDate.ToString("yyyy-MM-dd"), period = shiftPeriod.Code });
+            return RedirectToPage("/MonthlyPlan", new { year = parsedDate.Year, month = parsedDate.Month });
         }
     }
 }

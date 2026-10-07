@@ -37,7 +37,7 @@
 							</ul>
 						</td>
 						<td data-align="center">
-							@* <a class="button" asp-page="/UpdateEmployee" asp-route-id="@Model.Employee.EmployeeId">Rediger</a> *@
+							<a class="button" asp-page="/UpdateShift" asp-route-date="@Model.Shift.Key.Date.ToString("yyyy-MM-dd")" asp-route-period="@Model.Shift.Key.Period">Rediger</a>
 							<button class="button" type="submit">Slet</button>
 						</td>
 					</tr>
