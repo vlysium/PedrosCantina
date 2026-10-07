@@ -349,7 +349,7 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	public EmployeeShiftSummary ReadMonthlyShiftsByEmployeeId(DateOnly date, int employeeId)
 	{
 		const string query = """
-			SELECT e.employee_id, e.name, e.email, e.phone_number, COUNT(es.employee_id) AS shifts_worked
+			SELECT e.employee_id as employee_id, e.name as employee_name, e.email as employee_email, e.phone_number as employee_phone_number, COUNT(es.employee_id) AS shifts_worked
 			FROM employees e
 			LEFT JOIN employee_shifts es ON es.employee_id = e.employee_id
 				AND es.shift_date >= DATEFROMPARTS(@year, @month, 1) AND es.shift_date < DATEADD(MONTH, 1, DATEFROMPARTS(@year, @month, 1))
@@ -372,8 +372,15 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 			throw new KeyNotFoundException($"Employee with ID {employeeId} was not found.");
 		}
 
-		EmployeeShiftSummary employeeShiftSummary = (EmployeeShiftSummary)PopulateEmployee(reader);
-		employeeShiftSummary.ShiftsWorked = reader.GetInt32(reader.GetOrdinal("shifts_worked"));
+		Employee employee = PopulateEmployee(reader);
+
+		EmployeeShiftSummary employeeShiftSummary = new EmployeeShiftSummary(
+			employee.EmployeeId,
+			employee.Name,
+			employee.Email,
+			employee.PhoneNumber,
+			reader.GetInt32(reader.GetOrdinal("shifts_worked"))
+		);
 
 		return employeeShiftSummary;
 	}

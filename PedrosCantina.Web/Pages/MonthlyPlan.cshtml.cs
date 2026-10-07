@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PedrosCantina.Library.Models;
 using PedrosCantina.Library.Services;
 
@@ -13,8 +14,14 @@ namespace PedrosCantina.Web.Pages
         private readonly ShiftService _shiftService;
 
         /// <summary>
+        /// Gets the employee service used to retrieve employees for the monthly plan.
+        /// </summary>
+        private readonly EmployeeService _employeeService;
+
+        /// <summary>
         /// Gets or sets the current month being displayed.
         /// </summary>
+        [BindProperty]
         public DateTime CurrentMonth { get; set; }
 
         /// <summary>
@@ -39,15 +46,33 @@ namespace PedrosCantina.Web.Pages
         public List<Shift> Shifts { get; set; } = new List<Shift>();
 
         /// <summary>
+        /// Gets or sets the employee shift summary for the currently displayed month.
+        /// </summary>
+        public EmployeeShiftSummary? EmployeeShiftSummary { get; set; }
+
+        /// <summary>
+        /// Gets or sets the SelectList of employees to be used in the employee selection dropdown on the create shift page.
+        /// </summary>
+        public SelectList EmployeeSelectList = new SelectList(new List<Employee>(), "EmployeeId", "Name");
+
+        /// <summary>
+        /// Gets or sets the user ID to search for employee shift summary.
+        /// </summary>
+        [BindProperty]
+        public int? SearchUserId { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MonthlyPlanModel"/> class with the specified shift service.
         /// </summary>
         /// <param name="shiftService">The shift service to use.</param>
-        public MonthlyPlanModel(ShiftService shiftService)
+        /// <param name="employeeService">The employee service to use.</param>
+        public MonthlyPlanModel(ShiftService shiftService, EmployeeService employeeService)
         {
             _shiftService = shiftService;
+            _employeeService = employeeService;
         }
 
-        public IActionResult OnGet(int? year, int? month)
+        public IActionResult OnGet(int? year, int? month, int? userId)
         {
             // If no month was supplied, redirect to the current month.
             if (!year.HasValue || !month.HasValue)
@@ -55,16 +80,31 @@ namespace PedrosCantina.Web.Pages
                 return RedirectToPage("/MonthlyPlan", new { year = DateTime.Now.Year, month = DateTime.Now.Month });
             }
 
+            EmployeeSelectList = new SelectList(_employeeService.GetAllEmployees(), "EmployeeId", "Name");
+
             // Set the current month.
             CurrentMonth = new DateTime(year.Value, month.Value, 1);
 
             // Get shifts for the month.
             Shifts = _shiftService.GetMonthlyPlan(year.Value, month.Value);
 
+            // Get the employee shift summary if a user ID is provided.
+            if (userId.HasValue)
+            {
+                DateOnly.TryParse($"{year.Value}-{month.Value}-01", out DateOnly parsedDate);
+
+                EmployeeShiftSummary = _shiftService.GetMonthlyShiftsByEmployeeId(parsedDate, userId.Value);
+            }
+
             // Generate the calendar and map the shifts to their dates.
             GenerateCalendar();
 
             return Page();
+        }
+
+        public IActionResult OnPostSearch()
+        {
+            return RedirectToPage("/MonthlyPlan", new { userId = SearchUserId });
         }
 
         /// <summary>

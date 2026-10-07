@@ -5,15 +5,14 @@
 @{
 }
 
-
-
 <div class="table-wrapper">
 	<div class="table-container">
-	<div class="calendar-navigation">
-		<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.PreviousMonth.Year" asp-route-month="@Model.PreviousMonth.Month">Forrige</a>
-		<h1>@Model.CurrentMonth.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</h1>
-		<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.NextMonth.Year" asp-route-month="@Model.NextMonth.Month">Næste</a>
-	</div>
+		<div class="calendar-navigation">
+			<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.PreviousMonth.Year" asp-route-month="@Model.PreviousMonth.Month">Forrige</a>
+			<h1>@Model.CurrentMonth.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</h1>
+			<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.NextMonth.Year" asp-route-month="@Model.NextMonth.Month">Næste</a>
+		</div>
+
 		<table class="calendar-table">
 			<thead>
 				<tr>
@@ -77,5 +76,35 @@
 			}
 			</tbody>
 		</table>
+
+		<form class="search-year" method="post" asp-page-handler="Search">
+			<Select asp-for="SearchUserId" asp-items="Model.EmployeeSelectList">
+				<option value="" default>Vælg en medarbejder</option>
+			</Select>
+			<button class="button" type="submit">Søg</button>
+		</form>
+		@if (Model.EmployeeShiftSummary != null)
+		{
+		<table>
+			<thead>
+				<tr>
+					<th data-align="right">ID</th>
+					<th>Navn</th>
+					<th>Email</th>
+					<th>Telefon nr.</th>
+					<th data-align="right">Belastning i @Model.CurrentMonth.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<th data-align="right">@Model.EmployeeShiftSummary.EmployeeId</th>
+					<td>@Model.EmployeeShiftSummary.Name</td>
+					<td>@Model.EmployeeShiftSummary.Email</td>
+					<td>@Model.EmployeeShiftSummary.PhoneNumber</td>
+					<td data-align="right">@Model.EmployeeShiftSummary.ShiftsWorked @(Model.EmployeeShiftSummary.ShiftsWorked == 1 ? "vagt" : "vagter")</td>
+				</tr>
+			</tbody>
+		</table>
+		}
 	</div>
 </div>

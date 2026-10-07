@@ -190,9 +190,13 @@ td:has(input, select) {
   gap: 0.5rem;
 }
 
-#SearchYear {
+#SearchYear, #SearchUserId {
   font-family: monospace;
   font-size: 0.875rem;
   border: 1px solid;
   min-width: 10ch;
+
+  &:hover, &:focus-visible {
+    outline: 1px solid;
+  }
 }

@@ -26,7 +26,7 @@
 					<td>@employee.Name</td>
 					<td>@employee.Email</td>
 					<td>@employee.PhoneNumber</td>
-					<td data-align="right">@employee.ShiftsWorked vagter</td>
+					<td data-align="right">@employee.ShiftsWorked @(employee.ShiftsWorked == 1 ? "vagt" : "vagter")</td>
 				</tr>
 				}
 			</tbody>
