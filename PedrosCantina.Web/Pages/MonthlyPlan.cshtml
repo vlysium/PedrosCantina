@@ -25,7 +25,7 @@
 					<th data-align="center">Søn</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody data-align="top">
 			@for (int i = 0; i < Model.Days.Count; i += 7)
 			{
 				<tr>
@@ -44,7 +44,7 @@
 							<strong class="calendar-date">@date.Day</strong>
 							@foreach (Shift shift in day.Shifts)
 							{
-							<div class="shift">
+							<a class="shift" action="" asp-page="/ShiftDetails" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="@shift.Period.Code">
 								<time class="shift-period">@shift.Period.StartTime - @shift.Period.EndTime</time>
 								<div class="shift-manager">
 									<strong>@shift.Manager.Name</strong>
@@ -58,15 +58,15 @@
 									}
 								}
 								</div>
-							</div>
+							</a>
 							}
-							@if (!day.Shifts.Any(shift => shift.Period.Code == "Morgen"))
+							@if (!day.Shifts.Any(shift => shift.Period.Code == "morgen"))
 							{
-								<a class="button" asp-page="/CreateShift" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="Morgen">+ Morgen vagt</a>
+								<a class="button" asp-page="/CreateShift" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="morgen">+ Morgen vagt</a>
 							}
-							@if (!day.Shifts.Any(shift => shift.Period.Code == "Aften"))
+							@if (!day.Shifts.Any(shift => shift.Period.Code == "aften"))
 							{
-								<a class="button" asp-page="/CreateShift" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="Aften">+ Aften vagt</a>
+								<a class="button" asp-page="/CreateShift" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="aften">+ Aften vagt</a>
 							}
 						</div>
 					</td>

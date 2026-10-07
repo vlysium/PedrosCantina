@@ -35,8 +35,22 @@ public class ShiftPeriod
 		EndTime = endTime;
 	}
 
+	/// <summary>
+	/// Returns the period code with the first letter capitalized and the rest in lowercase.
+	/// </summary>
+	/// <returns>The capitalized period code.</returns>
+	public string GetCapitalizedCode()
+	{
+		if (string.IsNullOrEmpty(Code))
+		{
+			return Code;
+		}
+
+		return char.ToUpper(Code[0]) + Code.Substring(1).ToLower();
+	}
+
 	public override string ToString()
 	{
-		return $"{Code}: {StartTime} - {EndTime}";
+		return $"{GetCapitalizedCode()}: {StartTime} - {EndTime}";
 	}
 }

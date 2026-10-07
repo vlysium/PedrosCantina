@@ -81,8 +81,8 @@ public class DatabaseSeeder
 	{
 		ShiftPeriod[] periods =
 		[
-			new ShiftPeriod("Morgen", new TimeOnly(9, 0), new TimeOnly(14, 0)),
-			new ShiftPeriod("Aften", new TimeOnly(14, 0), new TimeOnly(19, 0))
+			new ShiftPeriod("morgen", new TimeOnly(9, 0), new TimeOnly(14, 0)),
+			new ShiftPeriod("aften", new TimeOnly(14, 0), new TimeOnly(19, 0))
 		];
 
 		// Release the connection after use with `using`

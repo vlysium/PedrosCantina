@@ -1,0 +1,46 @@
+﻿@page "/vagt/{date}/{period}"
+@using System.Globalization
+@using PedrosCantina.Library.Models
+@model PedrosCantina.Web.Pages.ShiftDetailsModel
+@{
+}
+
+<div class="table-wrapper">
+	<div class="table-container">
+		<form method="post">
+			<input type="hidden" asp-for="Shift.Key" />
+			<table>
+				<thead>
+					<tr>
+						<th>Dato</th>
+						<th>Vagtperiode</th>
+						<th>Leder</th>
+						<th>Medarbejdere</th>
+						<th data-align="center">Handlinger</th>
+					</tr>
+				</thead>
+				<tbody data-align="top">
+					<tr>
+						<th>@Model.Shift.Key.Date.ToString("d. MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</th>
+						<td><time>@Model.Shift.Period</time></td>
+						<td>@Model.Shift.Manager.Name</td>
+						<td>
+							<ul class="shift-employee-list">
+							@foreach (Employee employee in Model.Shift.Employees.Values)
+							{
+							@if (employee != Model.Shift.Manager)
+							{
+								<li>@employee.Name</li>
+							}
+							}
+							</ul>
+						</td>
+						<td data-align="center">
+
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>

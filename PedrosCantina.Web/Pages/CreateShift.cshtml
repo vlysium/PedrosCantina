@@ -1,0 +1,54 @@
+﻿@page "/vagt/{date}/{period}/opret"
+@using System.Globalization
+@using PedrosCantina.Library.Models
+@model PedrosCantina.Web.Pages.CreateShiftModel
+@{
+}
+
+<div class="table-wrapper">
+	<div class="table-container">
+		<form method="post">
+			<input type="hidden" asp-for="Date" />
+			<input type="hidden" asp-for="Period" />
+			<table>
+				<thead>
+					<tr>
+						<th>Dato</th>
+						<th>Vagtperiode</th>
+						<th>Leder</th>
+						<th>Medarbejdere</th>
+						<th data-align="center">Handlinger</th>
+					</tr>
+				</thead>
+				<tbody data-align="top">
+					<tr>
+						<th>@Model.Date.ToString("d. MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</th>
+						<td><time>@Model.Period</time></td>
+						<td>
+							<select asp-for="ManagerId" asp-items="Model.ManagerSelectList" required>
+								<option value="" default>Vælg leder</option>
+							</select>
+						</td>
+						<td>
+							<ul class="shift-employee-list">
+								<li>
+									<select asp-for="EmployeeIdToAdd1" asp-items="Model.EmployeeSelectList" required>
+										<option value="" default>Vælg medarbejder</option>
+									</select>
+								</li>
+								<li>
+									<select asp-for="EmployeeIdToAdd2" asp-items="Model.EmployeeSelectList">
+										<option value="" default>Vælg medarbejder</option>
+									</select>
+								</li>
+							</ul>
+						</td>
+						<td data-align="center">
+							<button class="button" type="submit">Opret vagt</button>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</form>
+	</div>
+</div>

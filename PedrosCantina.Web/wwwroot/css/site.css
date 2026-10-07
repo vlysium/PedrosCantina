@@ -70,12 +70,16 @@ table {
   border: 1px solid;
   text-align: left;
   
-    [data-align="center"] {
-      text-align: center;
-    }
+  [data-align="center"] {
+    text-align: center;
+  }
 
   [data-align="right"] {
     text-align: right;
+  }
+
+  [data-align="top"] {
+    vertical-align: top;
   }
 }
 
@@ -101,17 +105,13 @@ form {
 
 td input, td select {
   border: none;
-  padding: 0.5rem 0.75rem;
+  padding: 0.75rem;
   font-size: 1rem;
   font-family: monospace;
 
   &:focus {
     outline: none;
   }
-}
-
-td select {
-  margin-inline: -0.25rem;
 }
 
 td:has(input, select) {
@@ -140,7 +140,6 @@ td:has(input, select) {
   background: #fff;
   border: 1px solid;
   padding: 0.5rem;
-  vertical-align: top;
 }
 
 .calendar-day-content {
@@ -154,9 +153,26 @@ td:has(input, select) {
   font-size: 0.875rem;
   padding: 0.375rem;
   border-left: 1px solid;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover, &:focus-visible {
+    outline: 1px solid #000;
+    outline-offset: 0;
+  }
 }
 
 .calendar-day.empty {
   background: #f4f4f4;
   cursor: not-allowed;
+}
+
+.shift-employee-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.shift-employee-list:has(#EmployeeIdToAdd1 option[value=""]:checked) #EmployeeIdToAdd2 {
+  display: none;
 }

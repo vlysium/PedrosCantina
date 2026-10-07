@@ -30,6 +30,16 @@ public class ManagerService
 	}
 
 	/// <summary>
+	/// Retrieves a manager by their unique identifier.
+	/// </summary>
+	/// <param name="employeeId">The unique identifier of the manager to retrieve.</param>
+	/// <returns>The manager if found; otherwise, null.</returns>
+	public Manager? GetManagerById(int employeeId)
+	{
+		return _managerRepository.ReadById(employeeId);
+	}
+
+	/// <summary>
 	/// Retrieves all managers from the repository.
 	/// </summary>
 	/// <returns>A list of all managers.</returns>
