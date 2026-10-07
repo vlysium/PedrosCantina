@@ -24,6 +24,18 @@ namespace PedrosCantina.Web.Pages
         public Shift Shift { get; set; } = null!;
 
         /// <summary>
+        /// Gets or sets the date of the shift to be created on the create shift page.
+        /// </summary>
+        [BindProperty]
+        public DateOnly Date { get; set; }
+
+        /// <summary>
+        /// Gets or sets the shift period of the shift to be created on the create shift page.
+        /// </summary>
+        [BindProperty]
+        public string Period { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ShiftDetailsModel"/> class with the specified shift service.
         /// </summary>
         /// <param name="shiftService">The shift service to use.</param>
@@ -54,6 +66,17 @@ namespace PedrosCantina.Web.Pages
             }
 
             return RedirectToPage("/MonthlyPlan", new { year = DateTime.Now.Year, month = DateTime.Now.Month });
+        }
+
+        public IActionResult OnPost()
+        {
+            ShiftPeriod shiftPeriod = _shiftPeriodService.GetShiftPeriodById(Period)!;
+
+            ShiftKey shiftKey = new ShiftKey(Date, shiftPeriod);
+
+            _shiftService.DeleteShift(shiftKey);
+
+            return RedirectToPage("/MonthlyPlan", new { year = Date.Year, month = Date.Month });
         }
     }
 }

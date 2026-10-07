@@ -8,7 +8,8 @@
 <div class="table-wrapper">
 	<div class="table-container">
 		<form method="post">
-			<input type="hidden" asp-for="Shift.Key" />
+			<input type="hidden" asp-for="Date" />
+			<input type="hidden" asp-for="Period" />
 			<table>
 				<thead>
 					<tr>
@@ -36,7 +37,8 @@
 							</ul>
 						</td>
 						<td data-align="center">
-
+							@* <a class="button" asp-page="/UpdateEmployee" asp-route-id="@Model.Employee.EmployeeId">Rediger</a> *@
+							<button class="button" type="submit">Slet</button>
 						</td>
 					</tr>
 				</tbody>
