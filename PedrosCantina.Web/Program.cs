@@ -14,8 +14,12 @@ builder.Services.AddRazorPages();
 builder.Services.AddSingleton<DBWorker>();
 builder.Services.AddSingleton<EmployeeService>();
 builder.Services.AddSingleton<ManagerService>();
+builder.Services.AddSingleton<ShiftService>();
+builder.Services.AddSingleton<ShiftPeriodService>();
 builder.Services.AddSingleton<EmployeeRepository>();
 builder.Services.AddSingleton<ManagerRepository>();
+builder.Services.AddSingleton<ShiftRepository>();
+builder.Services.AddSingleton<ShiftPeriodRepository>();
 
 var app = builder.Build();
 

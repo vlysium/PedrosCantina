@@ -14,6 +14,7 @@
 	<nav>
 		<ul>
 			<li><a class="button" asp-page="/Index">Forside</a></li>
+			<li><a class="button" asp-page="/MonthlyPlan" asp-route-year="@(DateTime.Now.Year)" asp-route-month="@(DateTime.Now.Month)">Månedsplan</a></li>
 			<li><a class="button" asp-page="/Employees">Medarbejdere</a></li>
 		</ul>
 	</nav>

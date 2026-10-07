@@ -63,10 +63,13 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 				shift = new Shift(date, period, manager);
 			}
 
-			// Populate the Employee instance and add it to the shift's employee list
 			Employee employee = PopulateEmployee(reader);
 
-			shift.AddEmployee(employee);
+			// Don't add the manager to the employee list again
+			if (!shift.Employees.ContainsKey(employee.EmployeeId))
+			{
+				shift.AddEmployee(employee);
+			}
 		}
 
 		return shift;
@@ -116,10 +119,13 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 				shifts.Add(key, existingShift);
 			}
 
-			// Populate the Employee instance and add it to the existing shift's employee list
 			Employee employee = PopulateEmployee(reader);
 
-			existingShift.AddEmployee(employee);
+			// Don't add the manager to the employee list again
+			if (!existingShift.Employees.ContainsKey(employee.EmployeeId))
+			{
+				existingShift.AddEmployee(employee);
+			}
 		}
 
 		return shifts.Values.ToList();
@@ -323,7 +329,12 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 			}
 
 			Employee employee = PopulateEmployee(reader);
-			existingShift.AddEmployee(employee);
+
+			// Don't add the manager to the employee list again
+			if (!existingShift.Employees.ContainsKey(employee.EmployeeId))
+			{
+				existingShift.AddEmployee(employee);
+			}
 		}
 
 		return shifts.Values.ToList();

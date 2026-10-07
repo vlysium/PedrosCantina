@@ -1,0 +1,80 @@
+﻿@page "/månedsplan/{year:int?}/{month:int?}"
+@using System.Globalization
+@using PedrosCantina.Library.Models
+@model PedrosCantina.Web.Pages.MonthlyPlanModel
+@{
+}
+
+
+<div class="table-wrapper">
+	<div class="calendar-navigation">
+		<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.PreviousMonth.Year" asp-route-month="@Model.PreviousMonth.Month">Forrige</a>
+		<h1>@Model.CurrentMonth.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</h1>
+		<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.NextMonth.Year" asp-route-month="@Model.NextMonth.Month">Næste</a>
+	</div>
+	<div class="table-container">
+		<table class="calendar-table">
+			<thead>
+				<tr>
+					<th data-align="center">Man</th>
+					<th data-align="center">Tir</th>
+					<th data-align="center">Ons</th>
+					<th data-align="center">Tor</th>
+					<th data-align="center">Fre</th>
+					<th data-align="center">Lør</th>
+					<th data-align="center">Søn</th>
+				</tr>
+			</thead>
+			<tbody>
+			@for (int i = 0; i < Model.Days.Count; i += 7)
+			{
+				<tr>
+				@for (int j = 0; j < 7; j++)
+				{
+				CalendarDay? day = Model.Days[i + j];
+				@if (!day.Date.HasValue)
+				{
+					<td class="calendar-day empty"></td>
+				}
+				else
+				{
+					DateOnly date = day.Date.Value;
+					<td class="calendar-day">
+						<div class="calendar-day-content">
+							<strong class="calendar-date">@date.Day</strong>
+							@foreach (Shift shift in day.Shifts)
+							{
+							<div class="shift">
+								<time class="shift-period">@shift.Period.StartTime - @shift.Period.EndTime</time>
+								<div class="shift-manager">
+									<strong>@shift.Manager.Name</strong>
+								</div>
+								<div class="shift-employees">
+								@foreach (Employee employee in shift.Employees.Values)
+								{
+									@if (employee != shift.Manager)
+									{
+									<div class="shift-employee">@employee.Name</div>
+									}
+								}
+								</div>
+							</div>
+							}
+							@if (!day.Shifts.Any(shift => shift.Period.Code == "Morgen"))
+							{
+								<a class="button" asp-page="/CreateShift" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="Morgen">+ Morgen vagt</a>
+							}
+							@if (!day.Shifts.Any(shift => shift.Period.Code == "Aften"))
+							{
+								<a class="button" asp-page="/CreateShift" asp-route-date="@date.ToString("yyyy-MM-dd")" asp-route-period="Aften">+ Aften vagt</a>
+							}
+						</div>
+					</td>
+				}
+				}
+				</tr>
+			}
+			</tbody>
+		</table>
+	</div>
+</div>
