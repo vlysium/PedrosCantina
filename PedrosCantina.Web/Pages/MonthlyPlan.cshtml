@@ -6,14 +6,14 @@
 }
 
 
-<div class="calendar-navigation">
-	<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.PreviousMonth.Year" asp-route-month="@Model.PreviousMonth.Month">Forrige</a>
-	<h1>@Model.CurrentMonth.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</h1>
-	<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.NextMonth.Year" asp-route-month="@Model.NextMonth.Month">Næste</a>
-</div>
 
 <div class="table-wrapper">
 	<div class="table-container">
+	<div class="calendar-navigation">
+		<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.PreviousMonth.Year" asp-route-month="@Model.PreviousMonth.Month">Forrige</a>
+		<h1>@Model.CurrentMonth.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("da-DK"))</h1>
+		<a class="button" asp-page="MonthlyPlan" asp-route-year="@Model.NextMonth.Year" asp-route-month="@Model.NextMonth.Month">Næste</a>
+	</div>
 		<table class="calendar-table">
 			<thead>
 				<tr>

@@ -53,6 +53,13 @@ nav {
   padding: 0.5rem;
 }
 
+.nav-list {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 ul {
   list-style: none;
   display: flex;
@@ -122,7 +129,6 @@ td:has(input, select) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.5rem;
 }
 
 .calendar-weekdays, .calendar-days {
@@ -175,4 +181,18 @@ td:has(input, select) {
 
 .shift-employee-list:has(#EmployeeIdToAdd1 option[value=""]:checked) #EmployeeIdToAdd2 {
   display: none;
+}
+
+.search-year {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 0.5rem;
+}
+
+#SearchYear {
+  font-family: monospace;
+  font-size: 0.875rem;
+  border: 1px solid;
+  min-width: 10ch;
 }

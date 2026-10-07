@@ -20,16 +20,16 @@
 			<tbody>
 				@foreach (Employee employee in Model.AllEmployees)
 				{
-					<tr>
-						<th data-align="right">@employee.EmployeeId</th>
-						<td>@employee.Name</td>
-						<td>@employee.Email</td>
-						<td>@employee.PhoneNumber</td>
-						<td>@(employee is Manager ? "Leder" : "Medarbejder")</td>
-						<td data-align="center">
-							<a class="button" asp-page="/EmployeeDetails" asp-route-id="@employee.EmployeeId">Vis</a>
-						</td>
-					</tr>
+				<tr>
+					<th data-align="right">@employee.EmployeeId</th>
+					<td>@employee.Name</td>
+					<td>@employee.Email</td>
+					<td>@employee.PhoneNumber</td>
+					<td>@(employee is Manager ? "Leder" : "Medarbejder")</td>
+					<td data-align="center">
+						<a class="button" asp-page="/EmployeeDetails" asp-route-id="@employee.EmployeeId">Vis</a>
+					</td>
+				</tr>
 				}
 			</tbody>
 		</table>

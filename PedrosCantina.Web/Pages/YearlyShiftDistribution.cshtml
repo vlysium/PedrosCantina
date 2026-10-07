@@ -1,0 +1,35 @@
+﻿@page "/arbejdsfordeling/{year:int}"
+@using PedrosCantina.Library.Models
+@model PedrosCantina.Web.Pages.YearlyShiftDistributionModel
+
+<div class="table-wrapper">
+	<div class="table-container">
+		<form class="search-year" method="post" asp-page-handler="Search">
+			<input type="number" asp-for="SearchYear" min="2000" max="2100" value="@Model.Year" required />
+			<button class="button" type="submit">Søg</button>
+		</form>
+		<table>
+			<thead>
+				<tr>
+					<th data-align="right">ID</th>
+					<th>Navn</th>
+					<th>Email</th>
+					<th>Telefon nr.</th>
+					<th data-align="right">Belastning</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (EmployeeShiftSummary employee in Model.EmployeeShiftSummaries)
+				{
+				<tr>
+					<th data-align="right">@employee.EmployeeId</th>
+					<td>@employee.Name</td>
+					<td>@employee.Email</td>
+					<td>@employee.PhoneNumber</td>
+					<td data-align="right">@employee.ShiftsWorked vagter</td>
+				</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

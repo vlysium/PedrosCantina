@@ -386,7 +386,7 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 	public List<EmployeeShiftSummary> ReadEmployeeShiftDistributionByYear(DateOnly date)
 	{
 		const string query = """
-			SELECT e.employee_id, e.name, e.email, e.phone_number, COUNT(es.employee_id) AS shifts_worked
+			SELECT e.employee_id as employee_id, e.name as employee_name, e.email as employee_email, e.phone_number as employee_phone_number, COUNT(es.employee_id) AS shifts_worked
 			FROM employees e
 			LEFT JOIN employee_shifts es ON es.employee_id = e.employee_id
 				AND es.shift_date >= DATEFROMPARTS(@year, 1, 1) AND es.shift_date < DATEADD(YEAR, 1, DATEFROMPARTS(@year, 1, 1))
@@ -406,8 +406,15 @@ public class ShiftRepository : IReadOperations<Shift, ShiftKey>, IWriteOperation
 
 		while (reader.Read())
 		{
-			EmployeeShiftSummary employeeShiftSummary = (EmployeeShiftSummary)PopulateEmployee(reader);
-			employeeShiftSummary.ShiftsWorked = reader.GetInt32(reader.GetOrdinal("shifts_worked"));
+			Employee employee = PopulateEmployee(reader);
+
+			EmployeeShiftSummary employeeShiftSummary = new EmployeeShiftSummary(
+				employee.EmployeeId,
+				employee.Name,
+				employee.Email,
+				employee.PhoneNumber,
+				reader.GetInt32(reader.GetOrdinal("shifts_worked"))
+			);
 
 			employeeShiftSummaries.Add(employeeShiftSummary);
 		}
