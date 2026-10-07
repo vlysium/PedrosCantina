@@ -11,6 +11,7 @@ internal class Program
 	private static void Main()
 	{
 		Console.WriteLine("=== Database Seeder ===");
+		Console.WriteLine("Make sure to create the required tables in the database before running this seeder.");
 		Console.WriteLine();
 
 		try
@@ -19,21 +20,21 @@ internal class Program
 
 			DBWorker dbWorker = new DBWorker();
 
-			EmployeeRepository employeeRepository = new(dbWorker);
+			EmployeeRepository employeeRepository = new EmployeeRepository(dbWorker);
 
-			ManagerRepository managerRepository = new(dbWorker);
+			ManagerRepository managerRepository = new ManagerRepository(dbWorker);
 
-			ShiftPeriodRepository shiftPeriodRepository = new(dbWorker);
+			ShiftPeriodRepository shiftPeriodRepository = new ShiftPeriodRepository(dbWorker);
 
-			ShiftRepository shiftRepository = new(dbWorker);
+			ShiftRepository shiftRepository = new ShiftRepository(dbWorker);
 
-			EmployeeService employeeService = new(employeeRepository);
+			EmployeeService employeeService = new EmployeeService(employeeRepository);
 
-			ManagerService managerService = new(managerRepository);
+			ManagerService managerService = new ManagerService(managerRepository);
 
-			ShiftPeriodService shiftPeriodService = new(shiftPeriodRepository);
+			ShiftPeriodService shiftPeriodService = new ShiftPeriodService(shiftPeriodRepository);
 
-			ShiftService shiftService = new(shiftRepository);
+			ShiftService shiftService = new ShiftService(shiftRepository);
 
 			DatabaseSeeder seeder = new DatabaseSeeder(employeeService, managerService, shiftPeriodService, shiftService, dbWorker);
 
